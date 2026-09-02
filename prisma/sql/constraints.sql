@@ -11,27 +11,35 @@
 
 -- ─── CHECK CONSTRAINTS ────────────────────────────────────────────────────────
 
+-- Postgres has no ADD CONSTRAINT IF NOT EXISTS, so each is dropped first to
+-- keep this file re-runnable as documented above.
+
 -- habits.default_weekly_goal must be 1–7
+ALTER TABLE habits DROP CONSTRAINT IF EXISTS chk_habits_default_weekly_goal;
 ALTER TABLE habits
   ADD CONSTRAINT chk_habits_default_weekly_goal
   CHECK (default_weekly_goal BETWEEN 1 AND 7);
 
 -- habit_logs.log_date cannot be in the future
+ALTER TABLE habit_logs DROP CONSTRAINT IF EXISTS chk_habit_logs_log_date_not_future;
 ALTER TABLE habit_logs
   ADD CONSTRAINT chk_habit_logs_log_date_not_future
   CHECK (log_date <= CURRENT_DATE);
 
 -- weekly_goals.target_days must be 1–7
+ALTER TABLE weekly_goals DROP CONSTRAINT IF EXISTS chk_weekly_goals_target_days;
 ALTER TABLE weekly_goals
   ADD CONSTRAINT chk_weekly_goals_target_days
   CHECK (target_days BETWEEN 1 AND 7);
 
 -- weekly_goals.week_start_date must always be a Monday (DOW = 1 in ISO)
+ALTER TABLE weekly_goals DROP CONSTRAINT IF EXISTS chk_weekly_goals_week_start_is_monday;
 ALTER TABLE weekly_goals
   ADD CONSTRAINT chk_weekly_goals_week_start_is_monday
   CHECK (EXTRACT(DOW FROM week_start_date) = 1);
 
 -- reflections.reflection_month must always be the 1st of the month
+ALTER TABLE reflections DROP CONSTRAINT IF EXISTS chk_reflections_month_is_first;
 ALTER TABLE reflections
   ADD CONSTRAINT chk_reflections_month_is_first
   CHECK (EXTRACT(DAY FROM reflection_month) = 1);

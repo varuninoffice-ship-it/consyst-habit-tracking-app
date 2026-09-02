@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "engines": {
-    "node": ">=20 <21"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "next dev",
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "db:migrate": "prisma migrate deploy",
+    "db:constraints": "node scripts/apply-constraints.mjs",
+    "db:admin": "node scripts/create-admin.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.6.0",
@@ -27,7 +30,8 @@
     "@types/pg": "^8.20.0",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "eslint": "^8",
+    "dotenv": "^16.6.1",
+    "eslint": "^9",
     "eslint-config-next": "^16.2.2",
     "postcss": "^8",
     "prisma": "^7.6.0",
