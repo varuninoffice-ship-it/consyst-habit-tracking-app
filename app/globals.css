@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #FAFAF8;
+  --surface: #FFFFFF;
+  --chalk: #F2F1EC;
+  --border: #E8E7E2;
+  --border-md: #D4D3CE;
+  --ink: #111111;
+  --stone: #6B6A66;
+  --dust: #B4B3AE;
+
+  --coral: #F0997B;
+  --amber: #EF9F27;
+  --teal: #1D9E75;
+  --blue: #378ADD;
+  --purple: #7F77DD;
+
+  --teal-lt: #E1F5EE;
+  --amber-lt: #FEF3DC;
+  --coral-lt: #FDEEE8;
+  --blue-lt: #E6F1FB;
+  --purple-lt: #EEEDFE;
+}
+
+html {
+  overflow-x: hidden;
+}
+
+/*
+ * iOS Safari zooms the viewport when an input with font-size < 16px is focused.
+ * This forces 16px on touch devices only, preventing the zoom without affecting
+ * desktop visual sizing (Tailwind utility classes override this on hover-capable
+ * devices via the media query restriction).
+ */
+@media (hover: none) and (pointer: coarse) {
+  input, textarea, select {
+    font-size: 16px !important;
+  }
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .font-mono-brand {
+    font-family: 'DM Mono', monospace;
+  }
+  .font-serif-brand {
+    font-family: 'Lora', Georgia, serif;
+  }
+}
+
+@keyframes bar-rise {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
+
+.bar-rise {
+  transform-origin: bottom;
+  animation: bar-rise 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.bar-rise-1 { animation-delay: 0ms; }
+.bar-rise-2 { animation-delay: 80ms; }
+.bar-rise-3 { animation-delay: 160ms; }
+.bar-rise-4 { animation-delay: 240ms; }
+
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee 32s linear infinite;
+  will-change: transform;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}

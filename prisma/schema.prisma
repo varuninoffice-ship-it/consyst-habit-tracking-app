@@ -1,0 +1,246 @@
+// Consyst – Complete Prisma Schema
+// Data model v1.0 · Final · March 2026
+//
+// NOTE: Several constraints cannot be expressed in Prisma and are applied
+// separately via prisma/sql/constraints.sql:
+//   – CHECK constraints (default_weekly_goal, target_days, log_date,
+//     week_start_date, reflection_month)
+//   – Partial indexes (habits WHERE archived_at IS NULL,
+//     users WHERE is_test = false)
+//   – Database triggers (validate_habit_log_user, validate_habit_not_archived,
+//     set_updated_at)
+//
+// Run `prisma/sql/constraints.sql` against your Supabase project
+// after the first `npx prisma migrate dev`.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── ENUMS ────────────────────────────────────────────────────────────────────
+
+enum UserRole {
+  user
+  admin
+
+  @@map("user_role")
+}
+
+enum HabitCategory {
+  physical
+  mental
+  growth
+  recovery
+  connection
+  creative
+  spiritual
+  other
+
+  @@map("habit_category")
+}
+
+enum MilestoneType {
+  streak_record
+  first_perfect_day
+  first_a_week
+  habit_added
+  habit_archived
+  personal_best
+  manual
+
+  @@map("milestone_type")
+}
+
+// ─── TABLE 1: users ───────────────────────────────────────────────────────────
+//
+// Root of the entire system. All other entities belong to a user.
+// role + suspended_at + is_test are the Layer 5 admin amendments.
+
+model User {
+  id              String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name            String    @db.VarChar(100)
+  email           String    @unique @db.VarChar(255)
+  passwordHash    String?   @map("password_hash") @db.VarChar(255)
+  googleId        String?   @unique @map("google_id") @db.VarChar(255)
+  avatarUrl       String?   @map("avatar_url")
+  systemStartedAt DateTime  @map("system_started_at") @db.Date
+  timezone        String    @db.VarChar(50)
+  role            UserRole  @default(user)
+  suspendedAt     DateTime? @map("suspended_at") @db.Timestamptz
+  isTest          Boolean   @default(false) @map("is_test")
+  createdAt       DateTime  @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime  @updatedAt @map("updated_at") @db.Timestamptz
+
+  habits      Habit[]
+  habitLogs   HabitLog[]
+  weeklyGoals WeeklyGoal[]
+  dayNotes    DayNote[]
+  reflections Reflection[]
+  milestones  Milestone[]
+
+  // Partial index idx_users_role WHERE is_test = false → constraints.sql
+  @@map("users")
+}
+
+// ─── TABLE 2: habits ──────────────────────────────────────────────────────────
+//
+// A single trackable behaviour. Soft-deleted via archived_at (never hard-deleted
+// during normal operation). default_weekly_goal is the fallback when no
+// WeeklyGoal row exists for a given week.
+
+model Habit {
+  id                String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String        @map("user_id") @db.Uuid
+  name              String        @db.VarChar(100)
+  icon              String        @default("⭐") @db.VarChar(10)
+  category          HabitCategory @default(other)
+  description       String?
+  defaultWeeklyGoal Int           @map("default_weekly_goal")
+  sortOrder         Int           @default(0) @map("sort_order")
+  archivedAt        DateTime?     @map("archived_at") @db.Timestamptz
+  createdAt         DateTime      @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt         DateTime      @updatedAt @map("updated_at") @db.Timestamptz
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habitLogs   HabitLog[]
+  weeklyGoals WeeklyGoal[]
+  milestones  Milestone[]
+
+  // CHECK (default_weekly_goal BETWEEN 1 AND 7)    → constraints.sql
+  // Partial index idx_habits_user_active WHERE archived_at IS NULL → constraints.sql
+  @@map("habits")
+}
+
+// ─── TABLE 3: habit_logs ──────────────────────────────────────────────────────
+//
+// The most-written table. One row per habit per calendar day.
+// completed = false is an explicit uncheck, not an absent row.
+// user_id is denormalised for query performance (avoids join through habits).
+
+model HabitLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  habitId   String   @map("habit_id") @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  logDate   DateTime @map("log_date") @db.Date
+  completed Boolean  @default(true)
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, logDate])
+  @@index([userId, logDate(sort: Desc)])
+  @@index([habitId, logDate(sort: Desc)])
+  // CHECK (log_date <= CURRENT_DATE)               → constraints.sql
+  // TRIGGER validate_habit_log_user                → constraints.sql
+  // TRIGGER validate_habit_not_archived            → constraints.sql
+  @@map("habit_logs")
+}
+
+// ─── TABLE 4: weekly_goals ────────────────────────────────────────────────────
+//
+// Versioned goal history. Goals are never altered in place – changing a goal
+// inserts a new row with the next Monday as week_start_date. Historical scores
+// are always recalculable from the goal that was active at the time.
+//
+// To find the active goal for a given week:
+//   SELECT target_days FROM weekly_goals
+//   WHERE habit_id = :id AND week_start_date <= :monday
+//   ORDER BY week_start_date DESC LIMIT 1
+
+model WeeklyGoal {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  habitId       String   @map("habit_id") @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  targetDays    Int      @map("target_days")
+  weekStartDate DateTime @map("week_start_date") @db.Date
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  habit Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([habitId, weekStartDate])
+  @@index([habitId, weekStartDate(sort: Desc)])
+  // CHECK (target_days BETWEEN 1 AND 7)                          → constraints.sql
+  // CHECK (EXTRACT(DOW FROM week_start_date) = 1)  (Monday only) → constraints.sql
+  @@map("weekly_goals")
+}
+
+// ─── TABLE 5: day_notes ───────────────────────────────────────────────────────
+//
+// One short optional note per user per calendar day. Shown in Today and the
+// Reflect archive. Saving always upserts – one row per (user_id, note_date).
+
+model DayNote {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  noteDate  DateTime @map("note_date") @db.Date
+  content   String
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, noteDate])
+  @@index([userId, noteDate(sort: Desc)])
+  @@map("day_notes")
+}
+
+// ─── TABLE 6: reflections ─────────────────────────────────────────────────────
+//
+// One reflection per user per month. All four Reflect cards (wins, gaps,
+// journal, intentions) live as fields on the same row. Saving any card upserts
+// the single row for that month via ON CONFLICT (user_id, reflection_month).
+// reflection_month is always the first day of the month (e.g. 2026-03-01).
+
+model Reflection {
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  reflectionMonth DateTime @map("reflection_month") @db.Date
+  wins            Json?
+  gaps            Json?
+  journal         String?
+  intentions      Json?
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, reflectionMonth])
+  // CHECK (EXTRACT(DAY FROM reflection_month) = 1) → constraints.sql
+  @@map("reflections")
+}
+
+// ─── TABLE 7: milestones ──────────────────────────────────────────────────────
+//
+// Auto-detected or manually added significant moments. habit_id is nullable –
+// some milestones are system-wide (first A-grade week, Day 1).
+// On habit deletion: habit_id is SET NULL, the milestone survives.
+// On user deletion: milestone is CASCADE DELETED.
+// No updated_at – milestones are append-only records.
+
+model Milestone {
+  id            String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String        @map("user_id") @db.Uuid
+  habitId       String?       @map("habit_id") @db.Uuid
+  type          MilestoneType
+  title         String        @db.VarChar(200)
+  body          String?
+  milestoneDate DateTime      @map("milestone_date") @db.Date
+  isManual      Boolean       @default(false) @map("is_manual")
+  metadata      Json?
+  createdAt     DateTime      @default(now()) @map("created_at") @db.Timestamptz
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  habit Habit? @relation(fields: [habitId], references: [id], onDelete: SetNull)
+
+  @@index([userId, milestoneDate(sort: Desc)])
+  @@map("milestones")
+}

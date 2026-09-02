@@ -1,0 +1,1692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consyst — Sitemap & Design Decisions v4</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8; --surface:#FFFFFF; --chalk:#F2F1EC;
+  --border:#E8E7E2; --border-md:#D4D3CE;
+  --ink:#111111; --stone:#6B6A66; --dust:#B4B3AE;
+  --coral:#F0997B; --amber:#EF9F27; --teal:#1D9E75;
+  --blue:#378ADD; --purple:#7F77DD;
+  --teal-lt:#E1F5EE; --amber-lt:#FEF3DC;
+  --coral-lt:#FDEEE8; --blue-lt:#E6F1FB; --purple-lt:#EEEDFE;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+
+/* COVER */
+.cover{background:var(--surface);border-bottom:1px solid var(--border);}
+.cover-nav{padding:28px 64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-text{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;}
+.cover-meta{font-size:10px;color:var(--dust);font-family:'DM Mono',monospace;letter-spacing:1px;}
+.cover-body{padding:72px 64px 60px;max-width:960px;}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:20px;}
+.cover-title{font-size:58px;font-weight:800;letter-spacing:-3px;line-height:1.05;color:var(--ink);margin-bottom:22px;}
+.cover-sub{font-size:17px;color:var(--stone);max-width:560px;line-height:1.75;margin-bottom:48px;}
+.cover-stats{display:flex;gap:48px;padding-top:36px;border-top:1px solid var(--border);}
+.cs{display:flex;flex-direction:column;gap:4px;}
+.cs-num{font-size:36px;font-weight:800;letter-spacing:-1.5px;}
+.cs-label{font-size:10px;color:var(--dust);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.toc{padding:36px 64px;border-top:1px solid var(--border);background:var(--chalk);}
+.toc-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;margin-bottom:14px;}
+.toc-links{display:flex;flex-wrap:wrap;gap:8px;}
+.toc-link{font-size:12px;font-weight:600;color:var(--stone);text-decoration:none;padding:6px 15px;border-radius:20px;border:1px solid var(--border-md);background:var(--surface);transition:all 0.15s;}
+.toc-link:hover{border-color:var(--teal);color:var(--teal);}
+
+/* LAYOUT */
+.wrap{max-width:960px;margin:0 auto;padding:0 64px;}
+.doc-section{padding:72px 0;border-bottom:1px solid var(--border);}
+.doc-section:last-of-type{border-bottom:none;}
+.sh{display:flex;gap:24px;align-items:flex-start;margin-bottom:48px;}
+.sh-num{font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);letter-spacing:1px;padding-top:7px;flex-shrink:0;width:32px;}
+.sh-title{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+.sh-intro{font-size:15px;color:var(--stone);max-width:620px;line-height:1.8;}
+.sub{margin-bottom:40px;}
+.sub:last-child{margin-bottom:0;}
+.sub-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:var(--dust);font-family:'DM Mono',monospace;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+p.prose{font-size:15px;color:var(--stone);line-height:1.8;max-width:680px;}
+p.prose+p.prose{margin-top:14px;}
+p.prose strong{color:var(--ink);font-weight:700;}
+p.prose em{font-style:normal;color:var(--teal);font-weight:600;}
+
+/* CALLOUTS */
+.callout{padding:18px 22px;border-radius:12px;border-left:4px solid var(--teal);background:var(--teal-lt);margin:20px 0;}
+.callout p{font-size:14px;color:#085041;line-height:1.7;font-weight:500;}
+.callout.amber{border-color:var(--amber);background:var(--amber-lt);}
+.callout.amber p{color:#633806;}
+.callout.blue{border-color:var(--blue);background:var(--blue-lt);}
+.callout.blue p{color:#0C447C;}
+.callout.coral{border-color:var(--coral);background:var(--coral-lt);}
+.callout.coral p{color:#712B13;}
+
+/* EVOLUTION TABLE */
+.evo-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;}
+.evo-table th{text-align:left;padding:10px 14px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;border-bottom:2px solid var(--border-md);font-weight:500;}
+.evo-table td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.evo-table tr:last-child td{border-bottom:none;}
+.evo-table tr:nth-child(even) td{background:var(--chalk);}
+.strike{text-decoration:line-through;color:var(--dust);}
+.arrow{color:var(--teal);font-weight:800;padding:0 8px;}
+
+/* NAV SHOWCASE */
+.nav-showcase{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0;}
+.nav-item{display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface);}
+.nav-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.nav-name{font-size:13px;font-weight:700;color:var(--ink);}
+.nav-num{font-size:9px;font-family:'DM Mono',monospace;color:var(--dust);}
+.nav-gear{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:10px;border:1px dashed var(--border-md);background:var(--chalk);}
+.nav-gear-label{font-size:12px;font-weight:500;color:var(--dust);}
+
+/* SECTION CARDS */
+.section-map{display:flex;flex-direction:column;gap:12px;margin:20px 0;}
+.smap-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.smap-top{display:flex;align-items:stretch;border-bottom:1px solid var(--border);}
+.smap-accent{width:5px;flex-shrink:0;}
+.smap-inner{flex:1;padding:18px 20px;display:flex;align-items:center;gap:16px;}
+.smap-id{font-size:9px;font-family:'DM Mono',monospace;color:var(--dust);letter-spacing:1px;flex-shrink:0;width:24px;}
+.smap-info{flex:1;}
+.smap-name{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-0.4px;margin-bottom:2px;}
+.smap-tagline{font-size:11px;color:var(--stone);}
+.smap-freq{font-size:9px;font-family:'DM Mono',monospace;color:var(--dust);letter-spacing:0.5px;white-space:nowrap;}
+.smap-count{padding:18px 20px;border-left:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;flex-shrink:0;min-width:72px;}
+.smap-count-num{font-size:28px;font-weight:800;letter-spacing:-1px;line-height:1;}
+.smap-count-label{font-size:8px;font-family:'DM Mono',monospace;color:var(--dust);letter-spacing:1px;text-transform:uppercase;}
+.smap-body{padding:16px 20px 18px 20px;}
+.smap-screen{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.smap-screen:last-child{margin-bottom:0;}
+.smap-screen-id{font-size:9px;font-family:'DM Mono',monospace;color:var(--dust);flex-shrink:0;width:20px;padding-top:2px;}
+.smap-screen-body{flex:1;}
+.smap-screen-name{font-size:12px;font-weight:800;color:var(--ink);margin-bottom:3px;letter-spacing:-0.2px;}
+.smap-screen-desc{font-size:11px;color:var(--stone);line-height:1.6;}
+.smap-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;}
+.tag{font-size:9px;color:var(--stone);padding:2px 9px;border-radius:8px;border:1px solid var(--border);background:var(--chalk);font-weight:500;}
+.tag.inline{border-style:dashed;}
+
+/* COLOUR SWATCHES */
+.palette{display:flex;gap:12px;flex-wrap:wrap;margin:18px 0;}
+.swatch{display:flex;flex-direction:column;gap:6px;}
+.swatch-color{width:56px;height:56px;border-radius:12px;border:1px solid rgba(0,0,0,0.06);}
+.swatch-name{font-size:11px;font-weight:700;color:var(--ink);}
+.swatch-hex{font-size:10px;color:var(--dust);font-family:'DM Mono',monospace;}
+.swatch-role{font-size:10px;color:var(--stone);}
+
+/* PRINCIPLES */
+.principle-list{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:20px 0;}
+.pi{display:flex;gap:18px;padding:18px 22px;border-bottom:1px solid var(--border);background:var(--surface);}
+.pi:last-child{border-bottom:none;}
+.pi:nth-child(even){background:var(--chalk);}
+.pi-n{font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);flex-shrink:0;width:24px;padding-top:2px;}
+.pi-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.pi-text{font-size:12px;color:var(--stone);line-height:1.65;}
+
+/* DECISIONS GRID */
+.decisions-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:20px 0;}
+.dc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:9px;}
+.dc-tag{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;}
+.dc-title{font-size:13px;font-weight:800;color:var(--ink);letter-spacing:-0.2px;}
+.dc-body{font-size:12px;color:var(--stone);line-height:1.65;}
+.dc-rule{height:1px;background:var(--border);}
+.dc-rationale{font-size:11px;color:var(--dust);line-height:1.6;font-style:italic;}
+
+/* SCREEN STATUS TABLE */
+.status-table{width:100%;border-collapse:collapse;margin:20px 0;font-size:13px;}
+.status-table th{text-align:left;padding:10px 14px;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;border-bottom:2px solid var(--border-md);font-weight:500;}
+.status-table td{padding:13px 14px;border-bottom:1px solid var(--border);vertical-align:middle;}
+.status-table tr:last-child td{border-bottom:none;}
+.status-table tr:nth-child(even) td{background:var(--chalk);}
+.status-acc{width:5px;padding:0!important;}
+.status-bar{display:block;width:4px;height:36px;border-radius:2px;}
+.status-name{font-weight:700;color:var(--ink);font-size:13px;}
+.status-desc{font-size:11px;color:var(--stone);margin-top:2px;}
+.badge{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.5px;}
+.badge-done{background:var(--teal-lt);color:#085041;}
+.badge-next{background:var(--amber-lt);color:#633806;}
+.badge-pending{background:var(--chalk);color:var(--dust);}
+
+/* FOOTER */
+.doc-footer{padding:36px 64px;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{display:flex;align-items:center;gap:8px;}
+.footer-text{font-size:10px;color:var(--dust);font-family:'DM Mono',monospace;}
+
+@media(max-width:768px){
+  .wrap,.cover-nav,.cover-body,.toc,.doc-footer{padding-left:24px;padding-right:24px;}
+  .cover-title{font-size:38px;}
+  .sh-title{font-size:26px;}
+  .decisions-grid{grid-template-columns:1fr;}
+  .cover-stats{gap:28px;}
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-nav">
+    <div class="logo">
+      <svg width="52" height="20" viewBox="0 0 88 36">
+        <rect x="0"  y="12" width="14" height="22" rx="7" fill="#F0997B"/>
+        <rect x="18" y="6"  width="14" height="28" rx="7" fill="#EF9F27"/>
+        <rect x="36" y="0"  width="14" height="36" rx="7" fill="#1D9E75"/>
+        <rect x="54" y="4"  width="14" height="32" rx="7" fill="#378ADD"/>
+      </svg>
+      <span class="logo-text">Consyst</span>
+    </div>
+    <div class="cover-meta">Sitemap &amp; Design Decisions · v4.4 · March 2026</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="eyebrow">Product design document · final structure</div>
+    <h1 class="cover-title">Sitemap &amp;<br>Design Decisions</h1>
+    <p class="cover-sub">The definitive record of the Consyst web application — final navigation structure, all five sections, every screen, and the complete reasoning behind every design decision across all sessions.</p>
+    <div class="cover-stats">
+      <div class="cs"><div class="cs-num" style="color:var(--teal);">5</div><div class="cs-label">Sections</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--ink);">9</div><div class="cs-label">Screens</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--amber);">1</div><div class="cs-label">Light theme</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--blue);">v4</div><div class="cs-label">Sitemap version</div></div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">Contents</div>
+    <div class="toc-links">
+      <a href="#philosophy" class="toc-link">01 — Design philosophy</a>
+      <a href="#naming" class="toc-link">02 — Naming system</a>
+      <a href="#sitemap" class="toc-link">03 — Final sitemap</a>
+      <a href="#sections" class="toc-link">04 — Section breakdown</a>
+      <a href="#palette" class="toc-link">05 — Color &amp; typography</a>
+      <a href="#evolution" class="toc-link">06 — Sitemap evolution</a>
+      <a href="#decisions" class="toc-link">07 — Key design decisions</a>
+      <a href="#status" class="toc-link">08 — Design status</a>
+      <a href="#marketing" class="toc-link">09 — Landing &amp; sign in pages</a>
+      <a href="#settings" class="toc-link">10 — Settings screen</a>
+      <a href="#visuals" class="toc-link">11 — Visual designs</a>
+      <a href="#emptystates" class="toc-link">12 — Empty states · Day 1</a>
+      <a href="#techstack" class="toc-link">13 — Tech stack</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- 01 PHILOSOPHY -->
+<div class="doc-section" id="philosophy">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">01</div>
+      <div>
+        <div class="sh-title">Design Philosophy</div>
+        <p class="sh-intro">The principles that govern every decision in Consyst — from the largest structural choice to the smallest label.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Core idea</div>
+      <p class="prose">Consyst is not a productivity app. It is a <strong>personal operating system</strong> — infrastructure that runs quietly in the background of a life. Where most habit apps compete for attention, Consyst earns trust by being consistently present and precisely useful.</p>
+      <p class="prose">The single rule that drives every decision: <em>the system should feel more intelligent than the interface looks.</em> Complexity belongs in the logic. Simplicity belongs on the surface.</p>
+      <div class="callout">
+        <p>"You don't use Consyst. You run on it." — The interface should feel inevitable, not designed. Every screen earns its place or doesn't exist.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design principles</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">P1</div><div><div class="pi-title">Ultra-minimalist first, open up gradually</div><div class="pi-text">The app starts as simple as possible and opens up as the user builds familiarity. Nothing is shown before it's needed. The interface earns complexity — it doesn't start with it.</div></div></div>
+        <div class="pi"><div class="pi-n">P2</div><div><div class="pi-title">Companion over coach</div><div class="pi-text">Consyst observes and reflects — it never instructs or pressures. The tone is warm and precise. A quiet presence that's been paying attention, not a drill sergeant counting failures.</div></div></div>
+        <div class="pi"><div class="pi-n">P3</div><div><div class="pi-title">Sections not pages — score cards not screens</div><div class="pi-text">Most information lives as inline widgets within a section, not as separate navigable destinations. A user should be able to understand the entire app by reading the sidebar once.</div></div></div>
+        <div class="pi"><div class="pi-n">P4</div><div><div class="pi-title">No sub-navigation anywhere</div><div class="pi-text">There are no tabs, no secondary nav bars, no internal page switching within any section. Each section is one scrollable surface. Complexity is expressed through layout and widgets — never through navigation layers.</div></div></div>
+        <div class="pi"><div class="pi-n">P5</div><div><div class="pi-title">Light mode only — one consistent theme</div><div class="pi-text">The entire application uses a single warm light theme. No dark mode, no toggle. Tonal consistency reinforces the feeling that everything belongs to the same unified system.</div></div></div>
+        <div class="pi"><div class="pi-n">P6</div><div><div class="pi-title">Brand colors as the only accent layer</div><div class="pi-text">Coral, amber, teal, blue, and purple carry semantic meaning and appear consistently in that role. They are the only chromatic elements beyond neutrals. Each section has its own color — the user learns the language quickly.</div></div></div>
+        <div class="pi"><div class="pi-n">P7</div><div><div class="pi-title">Web-first, mobile-responsive</div><div class="pi-text">Designed as a web application. The desktop viewport is the primary surface. Mobile adapts from it — it doesn't drive it. This gives the design room to breathe and makes the OS metaphor feel grounded.</div></div></div>
+        <div class="pi"><div class="pi-n">P8</div><div><div class="pi-title">Gentle grading — honest but never punitive</div><div class="pi-text">The A/B/C grading system in Pulse uses positive framing at every threshold. A user should know they're behind — but they should also know exactly what it takes to get back on track. The message is always delivered with care.</div></div></div>
+        <div class="pi"><div class="pi-n">P9</div><div><div class="pi-title">Habits management is a core action, not a settings concern</div><div class="pi-text">The ability to add and edit habits is a primary function of the app — not an administrative task buried in settings. Habits lives in the main sidebar navigation at the same level as Today and Progress.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 02 NAMING -->
+<div class="doc-section" id="naming">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">02</div>
+      <div>
+        <div class="sh-title">Naming System</div>
+        <p class="sh-intro">Every section name was chosen to describe the emotional experience of being there — not what the screen contains.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">The naming philosophy</div>
+      <p class="prose">The words dashboard, weekly, monthly, habits, and reflection are functional descriptions. They tell you what a screen contains. Consyst is a companion — the navigation should speak the companion's language. Each name is a feeling, not a category.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Final section names</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n" style="color:var(--ink);font-weight:700;">Now</div><div><div class="pi-title">The dashboard — your current state</div><div class="pi-text">Not "Dashboard" — that's a tool word. "Now" is a time word. It says: this is where you are right now. Score cards, today's progress, top performer, what needs a push, this week at a glance. Everything you need to orient yourself in under five seconds.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--amber);font-weight:700;">Pulse</div><div><div class="pi-title">The weekly view — your rhythm</div><div class="pi-text">Not "Weekly" — that's a calendar word. "Pulse" is a vital-signs word. It says: is the system alive and healthy? The weekly grid, checkboxes, score, grade, and progress per habit. The mid-game view. Check it a few times a week.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--teal);font-weight:700;">Story</div><div><div class="pi-title">The monthly view — your arc</div><div class="pi-text">Not "Monthly" — that's an accounting word. "Story" is a narrative word. It says: this is the chapter you're writing. Score cards, goal vs actual, intensity heatmap, consistency trend, monthly summary. This is where the magic happens — designed to feel motivating, not analytical.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--purple);font-weight:700;">Habits</div><div><div class="pi-title">The setup layer — your system</div><div class="pi-text">"Habits" is the one functional name kept deliberately — because it's the most important thing in the app and should be completely unambiguous. Add, edit, archive habits via modal popup. Set weekly goals with day-pip selectors. This is the infrastructure of your personal OS.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--blue);font-weight:700;">Reflect</div><div><div class="pi-title">The journal — your inner voice</div><div class="pi-text">Not "Journal" or "Reflection" — "Reflect" is a verb. It says: come here to think. Monthly wins, gaps and risks, notes and journal, next month intentions. The calmest screen in the app. Designed to feel like a private space, not a form.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Settings — not a section</div>
+      <p class="prose">Settings is accessed via a gear icon at the bottom of the sidebar — never as a primary navigation item. Account preferences, reminders, profile, and data export all live here. It should feel like opening the back panel of a well-built machine: rarely needed, precise, and clean.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 03 SITEMAP -->
+<div class="doc-section" id="sitemap">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">03</div>
+      <div>
+        <div class="sh-title">Final Sitemap</div>
+        <p class="sh-intro">5 sections. 9 screens. No sub-navigation. A new user sees 5 items in the sidebar — that is the entire app.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">What the user sees in the sidebar</div>
+      <div class="nav-showcase">
+        <div class="nav-item" style="border-color:#111;">
+          <div class="nav-dot" style="background:#111;"></div>
+          <span class="nav-name">Now</span>
+          <span class="nav-num">01</span>
+        </div>
+        <div class="nav-item" style="border-color:var(--amber);">
+          <div class="nav-dot" style="background:var(--amber);"></div>
+          <span class="nav-name">Pulse</span>
+          <span class="nav-num">02</span>
+        </div>
+        <div class="nav-item" style="border-color:var(--teal);">
+          <div class="nav-dot" style="background:var(--teal);"></div>
+          <span class="nav-name">Story</span>
+          <span class="nav-num">03</span>
+        </div>
+        <div class="nav-item" style="border-color:var(--purple);">
+          <div class="nav-dot" style="background:var(--purple);"></div>
+          <span class="nav-name">Habits</span>
+          <span class="nav-num">04</span>
+        </div>
+        <div class="nav-item" style="border-color:var(--blue);">
+          <div class="nav-dot" style="background:var(--blue);"></div>
+          <span class="nav-name">Reflect</span>
+          <span class="nav-num">05</span>
+        </div>
+        <div class="nav-gear">
+          <svg width="14" height="14" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2.5" stroke="#B4B3AE" stroke-width="1.5"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41" stroke="#B4B3AE" stroke-width="1.2" stroke-linecap="round"/></svg>
+          <span class="nav-gear-label">Settings</span>
+        </div>
+      </div>
+      <div class="callout">
+        <p>A new user opens Consyst and sees 5 items. They click Now and see their score cards and today's check-in. They click Pulse and see the weekly grid. They click Habits to add their first habit. There is nothing to figure out — the app reveals itself immediately.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Complete section and screen map</div>
+      <div class="section-map">
+
+        <!-- NOW -->
+        <div class="smap-card">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:#111111;"></div>
+            <div class="smap-inner">
+              <div class="smap-id">01</div>
+              <div class="smap-info">
+                <div class="smap-name">Now</div>
+                <div class="smap-tagline">Dashboard · orient yourself in 5 seconds</div>
+              </div>
+              <div class="smap-freq">Every session · opens on launch</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:#111;">1</div>
+              <div class="smap-count-label">screen</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Now — single dashboard view</div>
+                <div class="smap-screen-desc">Everything on one fixed-height screen. Four score cards across the top (week score, today's progress, longest streak, active habits). Three widgets in the middle row: today's check-in with live checkboxes, top performer, and needs a push. Bottom row: this week at a glance (mini heatmap strip + weekly progress bar with score and grade), and Consyst's observation widget. Nothing scrolls. Nothing is hidden.</div>
+                <div class="smap-tags">
+                  <div class="tag">Week score card</div>
+                  <div class="tag">Today progress card</div>
+                  <div class="tag">Longest streak card</div>
+                  <div class="tag">Active habits card</div>
+                  <div class="tag inline">Today check-in widget</div>
+                  <div class="tag inline">Top performer widget</div>
+                  <div class="tag inline">Needs a push widget</div>
+                  <div class="tag inline">Week-at-a-glance widget</div>
+                  <div class="tag inline">Consyst notice widget</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- PULSE -->
+        <div class="smap-card">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:#EF9F27;"></div>
+            <div class="smap-inner">
+              <div class="smap-id">02</div>
+              <div class="smap-info">
+                <div class="smap-name">Pulse</div>
+                <div class="smap-tagline">Weekly view · check boxes, see the score, know where you stand</div>
+              </div>
+              <div class="smap-freq">2–3× weekly</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:var(--amber);">1</div>
+              <div class="smap-count-label">screen</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Pulse — single weekly view</div>
+                <div class="smap-screen-desc">Four score cards at the top (week score, completed, on-track habits, days left). A grade card below them — letter grade large, a forward-looking message that is honest but gentle ("You're doing well — one strong finish away from an A"), and a threshold bar showing exactly where A/B/C begin. The main habit table below: habits × days grid with live checkboxes (users can only check/uncheck weekly achievements here — cannot add or edit habits). Each habit row shows a progress bar and current streak. The week total sits in a footer bar. Scrollable on smaller viewports.</div>
+                <div class="smap-tags">
+                  <div class="tag">Week score card</div>
+                  <div class="tag">Completed card</div>
+                  <div class="tag">On-track card</div>
+                  <div class="tag">Days left card</div>
+                  <div class="tag inline">Grade card + message</div>
+                  <div class="tag inline">Habit × day grid (checkboxes)</div>
+                  <div class="tag inline">Progress bar per habit</div>
+                  <div class="tag inline">Streak per habit</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STORY -->
+        <div class="smap-card">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:#1D9E75;"></div>
+            <div class="smap-inner">
+              <div class="smap-id">03</div>
+              <div class="smap-info">
+                <div class="smap-name">Story</div>
+                <div class="smap-tagline">Monthly view · feel the arc, feel proud, feel motivated</div>
+              </div>
+              <div class="smap-freq">Monthly · designed to feel magical</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:var(--teal);">1</div>
+              <div class="smap-count-label">screen</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Story — single monthly view</div>
+                <div class="smap-screen-desc">Month picker in the top bar (past months selectable, future months dimmed). Four score cards: month score, best habit, total check-ins, consistency trend. Two widgets side by side: Goal vs Actual (horizontal bars showing target vs actual per habit) and the Intensity Heatmap (habits × weeks, green/amber/grey cells showing how much happened week by week — this is where it should feel like things are happening or not). Two widgets below: Consistency Trend (line chart of weekly scores with mini week cards) and Monthly Habit Summary (ranked list with progress bars and badges: Best, Strong, Good, Watch). The whole screen scrolls as one flowing narrative.</div>
+                <div class="smap-tags">
+                  <div class="tag">Month score card</div>
+                  <div class="tag">Best habit card</div>
+                  <div class="tag">Total check-ins card</div>
+                  <div class="tag">Consistency trend card</div>
+                  <div class="tag inline">Goal vs actual widget</div>
+                  <div class="tag inline">Intensity heatmap widget</div>
+                  <div class="tag inline">Consistency trend chart</div>
+                  <div class="tag inline">Monthly habit summary</div>
+                  <div class="tag">Month picker</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- HABITS -->
+        <div class="smap-card">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:#7F77DD;"></div>
+            <div class="smap-inner">
+              <div class="smap-id">04</div>
+              <div class="smap-info">
+                <div class="smap-name">Habits</div>
+                <div class="smap-tagline">Setup layer · add, edit, archive — modal-driven, never a sub-page</div>
+              </div>
+              <div class="smap-freq">On first use · occasionally</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:var(--purple);">1</div>
+              <div class="smap-count-label">screen + modal</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Habits — list screen with modal</div>
+                <div class="smap-screen-desc">Three stat cards at the top (active habits, total weekly target, archived). A clean sortable habit table below: drag handle, emoji icon, habit name, category, weekly goal, current streak, status badge, and Edit/Archive actions per row. An "+ Add habit" button in the top-right opens the modal. Clicking a habit row or Edit also opens the modal pre-filled. No sub-pages — all add/edit interaction happens in one popup modal overlay.</div>
+                <div class="smap-tags">
+                  <div class="tag">Active habits stat</div>
+                  <div class="tag">Weekly target stat</div>
+                  <div class="tag">Archived stat</div>
+                  <div class="tag inline">Sortable habit table</div>
+                  <div class="tag inline">+ Add habit button</div>
+                </div>
+              </div>
+            </div>
+            <div class="smap-screen" style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+              <div class="smap-screen-id">Modal</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Add / Edit habit — modal popup</div>
+                <div class="smap-screen-desc">Opens over the habits list with a blur overlay. Fields: habit name (text input), icon selector (grid of emoji options, tap to select), category (dropdown: physical, mental, growth, recovery, connection, creative, spiritual, other), weekly goal (day-pip selector — tap M/T/W/T/F/S/S to toggle days, count updates live), description (optional textarea). Save and Cancel buttons in the footer. Same modal serves both Add and Edit — pre-filled for editing.</div>
+                <div class="smap-tags">
+                  <div class="tag">Habit name input</div>
+                  <div class="tag">Icon selector grid</div>
+                  <div class="tag">Category dropdown</div>
+                  <div class="tag">Weekly goal pips</div>
+                  <div class="tag">Description textarea</div>
+                  <div class="tag">Save / Cancel</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REFLECT -->
+        <div class="smap-card">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:#378ADD;"></div>
+            <div class="smap-inner">
+              <div class="smap-id">05</div>
+              <div class="smap-info">
+                <div class="smap-name">Reflect</div>
+                <div class="smap-tagline">Journal · calm, quiet, no pressure — a space to think</div>
+              </div>
+              <div class="smap-freq">When it matters · monthly</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:var(--blue);">1</div>
+              <div class="smap-count-label">screen</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Reflect — single calm view</div>
+                <div class="smap-screen-desc">A 2×2 grid of cards, then two full-width cards below — all on one scrollable screen. Monthly Wins (teal-tinted cards, inline add input): achievements the user records for the month. Gaps &amp; Risks (amber-tinted cards, inline add input): honest notes about what's slipping. Notes &amp; Journal (full width, Lora serif textarea): free-form writing, borderless, feels like paper — "Write freely, this is just for you." Next Month Intentions (full width, italic serif numbered list with add input): forward-looking statements for the coming month. The design is the calmest in the app — generous whitespace, serif typography, no data, no charts.</div>
+                <div class="smap-tags">
+                  <div class="tag inline">Monthly wins card</div>
+                  <div class="tag inline">Gaps &amp; risks card</div>
+                  <div class="tag inline">Notes &amp; journal (full width)</div>
+                  <div class="tag inline">Next month intentions (full width)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS -->
+        <div class="smap-card" style="opacity:0.8;">
+          <div class="smap-top">
+            <div class="smap-accent" style="background:var(--dust);"></div>
+            <div class="smap-inner">
+              <div class="smap-id">⚙</div>
+              <div class="smap-info">
+                <div class="smap-name">Settings</div>
+                <div class="smap-tagline">Not a section — accessed via gear icon at sidebar bottom</div>
+              </div>
+              <div class="smap-freq">Rarely</div>
+            </div>
+            <div class="smap-count">
+              <div class="smap-count-num" style="color:var(--dust);">1</div>
+              <div class="smap-count-label">screen</div>
+            </div>
+          </div>
+          <div class="smap-body">
+            <div class="smap-screen">
+              <div class="smap-screen-id">A</div>
+              <div class="smap-screen-body">
+                <div class="smap-screen-name">Settings — one preferences screen</div>
+                <div class="smap-screen-desc">Account preferences, reminders (daily check-in time, weekly review day/time), notification toggles, profile (name, start date, system history), and data export (CSV, PDF, TXT, ZIP). A danger zone at the bottom for reset and delete. Never in the primary navigation.</div>
+                <div class="smap-tags">
+                  <div class="tag">Reminders</div>
+                  <div class="tag">Profile</div>
+                  <div class="tag">Data &amp; export</div>
+                  <div class="tag">Account</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Screen count summary</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th style="width:5px;padding:0;"></th>
+            <th>Section</th>
+            <th>Screens</th>
+            <th>Frequency</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:#111;"></span></td>
+            <td><div class="status-name">Now</div><div class="status-desc">Dashboard — score cards, check-in, top performer, week strip</div></td>
+            <td style="font-weight:800;font-size:16px;color:#111;font-family:'DM Mono',monospace;">1</td>
+            <td style="font-size:11px;color:var(--stone);">Every session</td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--amber);"></span></td>
+            <td><div class="status-name">Pulse</div><div class="status-desc">Weekly grid, checkboxes, grade, progress bars, streaks</div></td>
+            <td style="font-weight:800;font-size:16px;color:var(--amber);font-family:'DM Mono',monospace;">1</td>
+            <td style="font-size:11px;color:var(--stone);">2–3× weekly</td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--teal);"></span></td>
+            <td><div class="status-name">Story</div><div class="status-desc">Monthly score cards, goal vs actual, heatmap, trend, summary</div></td>
+            <td style="font-weight:800;font-size:16px;color:var(--teal);font-family:'DM Mono',monospace;">1</td>
+            <td style="font-size:11px;color:var(--stone);">Monthly</td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--purple);"></span></td>
+            <td><div class="status-name">Habits</div><div class="status-desc">Habit list + add/edit modal</div></td>
+            <td style="font-weight:800;font-size:16px;color:var(--purple);font-family:'DM Mono',monospace;">1 + modal</td>
+            <td style="font-size:11px;color:var(--stone);">First use, occasionally</td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--blue);"></span></td>
+            <td><div class="status-name">Reflect</div><div class="status-desc">Wins, gaps, journal, intentions — four cards, one scroll</div></td>
+            <td style="font-weight:800;font-size:16px;color:var(--blue);font-family:'DM Mono',monospace;">1</td>
+            <td style="font-size:11px;color:var(--stone);">When it matters</td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--dust);"></span></td>
+            <td><div class="status-name">Settings ⚙</div><div class="status-desc">Reminders, profile, data, account</div></td>
+            <td style="font-weight:800;font-size:16px;color:var(--dust);font-family:'DM Mono',monospace;">1</td>
+            <td style="font-size:11px;color:var(--stone);">Rarely</td>
+          </tr>
+          <tr style="background:var(--chalk);">
+            <td class="status-acc"></td>
+            <td><div class="status-name">Total</div></td>
+            <td style="font-weight:800;font-size:22px;color:var(--ink);font-family:'DM Mono',monospace;">6</td>
+            <td style="font-size:11px;color:var(--stone);font-style:italic;">Across all sections</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+
+<!-- 04 SECTION BREAKDOWN -->
+<div class="doc-section" id="sections">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">04</div>
+      <div>
+        <div class="sh-title">Section Breakdown</div>
+        <p class="sh-intro">The emotional job, design intent, and key rules for each of the five sections.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Now — dashboard</div>
+      <p class="prose"><strong>Emotional job:</strong> Orient. Before anything else, the user should know the state of their system in under 5 seconds.</p>
+      <p class="prose"><strong>Design intent:</strong> A single fixed-height screen — nothing scrolls. Four score cards (week score, today, longest streak, active habits) communicate the state at a glance. The middle row is three widgets: today's live check-in, top performer, and what needs a push. The bottom row shows the week in miniature and one Consyst observation. The 3×2 grid layout ensures every element is visible without any scrolling or clicking.</p>
+      <p class="prose"><strong>Key rule:</strong> Now is a glance, not a dashboard. The user should never need to read — only scan.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Pulse — weekly</div>
+      <p class="prose"><strong>Emotional job:</strong> Assess. Is this week going well? Where is it slipping? Is there still time to fix it?</p>
+      <p class="prose"><strong>Design intent:</strong> The habit × day grid is the hero. Score cards at the top communicate the state. The grade card is the centrepiece — it uses a large letter grade, a forward-looking message, and a threshold bar. The message is always constructive: if you're at a B, it tells you exactly what it takes to reach an A. The grid below allows checking and unchecking — this is the only place in the app where the user logs weekly completions. Each habit row shows a progress bar and streak.</p>
+      <p class="prose"><strong>Key rule:</strong> Users can only check/uncheck weekly achievements in Pulse — they cannot add or edit habits here.</p>
+      <div class="callout amber">
+        <p>The grade system: A = 85%+, B = 70%+, C = below 70%. Every grade message is written to be honest but kind. A C says "you're behind — but here's exactly how to get back." The user should feel nudged, never shamed.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Story — monthly</div>
+      <p class="prose"><strong>Emotional job:</strong> Feel something. Pride, perspective, momentum. This is the reward for showing up daily — and it should feel like one.</p>
+      <p class="prose"><strong>Design intent:</strong> Story is designed to feel magical. A month picker at the top, four score cards, then two side-by-side widgets: Goal vs Actual shows the gap between intention and reality as horizontal bars. The Intensity Heatmap shows habits × weeks as a grid of colored cells — green for strong weeks, amber for close, grey for low. This is where you can see at a glance whether things are happening or not happening. Below that, the Consistency Trend chart and the Monthly Habit Summary ranked list.</p>
+      <p class="prose"><strong>Key rule:</strong> Story should reward the user who has been consistent. It makes long-term commitment feel visually meaningful — not clinical.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Habits — setup</div>
+      <p class="prose"><strong>Emotional job:</strong> Control. Adjust the system without friction.</p>
+      <p class="prose"><strong>Design intent:</strong> A clean, sortable table with one row per habit. Everything about a habit is visible — name, icon, category, weekly goal, streak, and status. The add and edit flow opens a single modal popup with five fields: name, icon grid, category, weekly goal day-pips, and an optional description. No sub-pages, no separate settings screen for habits — it all happens in one modal over the list.</p>
+      <p class="prose"><strong>Key rule:</strong> Habits is a primary navigation item — not buried in Settings. It is the most consequential configuration in the app and must be immediately accessible.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Reflect — journal</div>
+      <p class="prose"><strong>Emotional job:</strong> Stillness. A private space to think, acknowledge, and look ahead.</p>
+      <p class="prose"><strong>Design intent:</strong> The calmest screen in the app. No data, no charts, no gamification. Four cards on one scroll: Monthly Wins (green-tinted, add your achievements), Gaps &amp; Risks (amber-tinted, note what's slipping), Notes &amp; Journal (full-width, Lora serif textarea — borderless, feels like writing on paper), and Next Month Intentions (full-width, italic numbered list). The design uses generous whitespace and serif typography throughout.</p>
+      <p class="prose"><strong>Key rule:</strong> Reflect should feel like a private notebook, not a form. Nothing is required. The placeholder text invites rather than demands.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 05 PALETTE -->
+<div class="doc-section" id="palette">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">05</div>
+      <div>
+        <div class="sh-title">Color &amp; Typography</div>
+        <p class="sh-intro">The Consyst design system — tokens, palette, and type scale carried from the brand directly into the UI.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Section color mapping</div>
+      <p class="prose">Each section has a dedicated brand color. The color appears as the active state in the sidebar nav dot, the sub-nav underline, the active state background tint, and throughout the section's score cards and highlights. This creates an immediate visual language — the user learns which color means which section without thinking about it.</p>
+      <div class="palette" style="margin-top:16px;">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-name">Now</div><div class="swatch-hex">#111111 Ink</div><div class="swatch-role">Active · dashboard</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#EF9F27;"></div><div class="swatch-name">Pulse</div><div class="swatch-hex">#EF9F27 Amber</div><div class="swatch-role">Active · weekly</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#1D9E75;"></div><div class="swatch-name">Story</div><div class="swatch-hex">#1D9E75 Teal</div><div class="swatch-role">Active · monthly</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#7F77DD;"></div><div class="swatch-name">Habits</div><div class="swatch-hex">#7F77DD Purple</div><div class="swatch-role">Active · habits</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#378ADD;"></div><div class="swatch-name">Reflect</div><div class="swatch-hex">#378ADD Blue</div><div class="swatch-role">Active · journal</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F0997B;"></div><div class="swatch-name">Coral</div><div class="swatch-hex">#F0997B Coral</div><div class="swatch-role">Today · urgency</div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Neutral palette</div>
+      <div class="palette">
+        <div class="swatch"><div class="swatch-color" style="background:#111111;"></div><div class="swatch-name">Ink</div><div class="swatch-hex">#111111</div><div class="swatch-role">Primary text</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#6B6A66;"></div><div class="swatch-name">Stone</div><div class="swatch-hex">#6B6A66</div><div class="swatch-role">Secondary text</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#B4B3AE;"></div><div class="swatch-name">Dust</div><div class="swatch-hex">#B4B3AE</div><div class="swatch-role">Labels, meta</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#E8E7E2;border:1px solid #D4D3CE;"></div><div class="swatch-name">Border</div><div class="swatch-hex">#E8E7E2</div><div class="swatch-role">Dividers</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#F2F1EC;border:1px solid #E8E7E2;"></div><div class="swatch-name">Chalk</div><div class="swatch-hex">#F2F1EC</div><div class="swatch-role">Widget headers, rows</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FAFAF8;border:1px solid #E8E7E2;"></div><div class="swatch-name">Background</div><div class="swatch-hex">#FAFAF8</div><div class="swatch-role">Page background</div></div>
+        <div class="swatch"><div class="swatch-color" style="background:#FFFFFF;border:1px solid #E8E7E2;"></div><div class="swatch-name">Surface</div><div class="swatch-hex">#FFFFFF</div><div class="swatch-role">Cards, sidebar, top bar</div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Typography</div>
+      <p class="prose"><strong>Plus Jakarta Sans</strong> — primary typeface for all UI text, labels, headings, navigation. Weights: 400 body, 500 medium, 600 semibold, 700 bold, 800 display. Chosen for its warmth, roundness, and confident weight range — it matches the companion tone without feeling clinical or cold.</p>
+      <p class="prose" style="margin-top:12px;"><strong>DM Mono</strong> — secondary typeface for all data, metadata, timestamps, section numbers, labels, and Consyst attributions. Mono reinforces the OS/systems concept and creates a clear hierarchy between the human voice and the data voice.</p>
+      <p class="prose" style="margin-top:12px;"><strong>Lora (serif)</strong> — used exclusively in the Reflect section for journal prompts, the textarea, and the intentions list. The serif creates an immediate tonal shift when the user enters Reflect — this is not a data interface anymore, it's a writing space.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 06 EVOLUTION -->
+<div class="doc-section" id="evolution">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">06</div>
+      <div>
+        <div class="sh-title">Sitemap Evolution</div>
+        <p class="sh-intro">How the map changed across four versions — and why each change made the app better.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Version history</div>
+      <table class="evo-table">
+        <thead>
+          <tr>
+            <th>Version</th>
+            <th>Sections</th>
+            <th>Total screens</th>
+            <th>Key change</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="font-weight:700;font-family:'DM Mono',monospace;color:var(--dust);">v1</td>
+            <td><span class="strike">Home, Today, Pulse, Journey, Reflect, System</span></td>
+            <td style="font-weight:800;color:var(--dust);font-family:'DM Mono',monospace;">30</td>
+            <td style="font-size:11px;color:var(--stone);">First version. 5 sub-screens per section, heavy sub-navigation throughout.</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;font-family:'DM Mono',monospace;color:var(--dust);">v2</td>
+            <td><span class="strike">Home, Today, Pulse, Journey, Reflect, System</span></td>
+            <td style="font-weight:800;color:var(--dust);font-family:'DM Mono',monospace;">12</td>
+            <td style="font-size:11px;color:var(--stone);">Sub-navigation removed. Screens consolidated. Still 6 sections.</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;font-family:'DM Mono',monospace;color:var(--dust);">v3</td>
+            <td><span class="strike">Now, Progress (Pulse+Journey), Journal, Habits</span></td>
+            <td style="font-weight:800;color:var(--dust);font-family:'DM Mono',monospace;">7</td>
+            <td style="font-size:11px;color:var(--stone);">Major merge. Home removed, Pulse+Journey became Progress, System removed from nav.</td>
+          </tr>
+          <tr>
+            <td style="font-weight:700;font-family:'DM Mono',monospace;color:var(--teal);">v4 ← current</td>
+            <td style="font-weight:700;color:var(--ink);">Now, Pulse, Story, Habits, Reflect</td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">6</td>
+            <td style="font-size:11px;color:var(--stone);">Progress split back into Pulse (weekly) and Story (monthly). Clearer names. Reflect replaces Journal. Final structure.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Why v4 is the right structure</div>
+      <p class="prose">The decision to keep Pulse and Story as separate sections (rather than merging them into Progress as in v3) came from recognising they serve genuinely different emotional needs. Pulse is visited 2–3 times a week — it's operational. Story is visited once a month — it's reflective. Merging them into one section gave the user an awkward choice every time they visited: am I here to check the week or review the month? Separating them removes that friction and gives each its own emotional register.</p>
+      <p class="prose" style="margin-top:12px;">The shift from "Reflect" to "Journal" in v3 and back to "Reflect" in v4 was a deliberate reversal. "Journal" is a noun — it names the container. "Reflect" is a verb — it names the action. In an app built around companion language, verbs are more powerful than nouns.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">What was cut across all versions — and why</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">Onboarding flow (6 screens) — removed</div><div class="pi-text">A full 6-screen onboarding was designed then removed. Reason: onboarding adds friction before value. Users should reach their first meaningful screen — Now — as quickly as possible. Habits setup handles first-run configuration without a separate onboarding ceremony.</div></div></div>
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">Home screen — removed</div><div class="pi-text">Home was a separate entry-point screen above the 5 nav sections. Removed because Now already does everything Home was doing — greet the user, orient them, show current state. A dedicated Home screen was a middleman with no job.</div></div></div>
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">Dark sidebar and dark status panel — removed</div><div class="pi-text">Early designs used a dark ink sidebar and a dark "system status" panel. Both were removed in favour of a fully consistent warm light theme. The dark elements created tonal inconsistency — a split-personality feel. Light mode only, everywhere.</div></div></div>
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">Sub-navigation tabs — removed from all sections</div><div class="pi-text">Every section once had 5 internal tabs (5×6 = 30 screens). Removing sub-navigation was the single biggest simplification. Users now need to learn only the sidebar — there is no second layer of navigation anywhere in the app.</div></div></div>
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">System in sidebar — moved to gear icon</div><div class="pi-text">System/Settings was initially a primary nav item (section 05). Moved to a gear icon at the sidebar footer. Settings are not something users visit on a daily or weekly basis — they shouldn't occupy the same visual weight as Today or Pulse.</div></div></div>
+        <div class="pi"><div class="pi-n">→</div><div><div class="pi-title">Life timeline, year in review, streak board as standalone screens — removed</div><div class="pi-text">These were initially separate navigable screens. All converted to inline widgets within Story. The information is the same — it just lives on a scroll rather than behind a tab click.</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 07 DECISIONS -->
+<div class="doc-section" id="decisions">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">07</div>
+      <div>
+        <div class="sh-title">Key Design Decisions</div>
+        <p class="sh-intro">The significant choices made during design sessions — what was decided, what was considered, and why.</p>
+      </div>
+    </div>
+
+    <div class="decisions-grid">
+      <div class="dc">
+        <div class="dc-tag">Decision 01</div>
+        <div class="dc-title">Now opens on launch — no home screen</div>
+        <div class="dc-body">The app opens directly to Now (the dashboard) every session. There is no intermediate home or splash screen.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">Now already orients the user — date, today's progress, streak, week state. A separate home would be a middleman with nothing to add.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 02</div>
+        <div class="dc-title">Pulse only allows checking — not adding</div>
+        <div class="dc-body">In Pulse, users can check and uncheck weekly habit completions. They cannot add new habits, change goals, or edit any other data from this view.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">Keeps the weekly view focused on assessment, not configuration. Adding habits belongs in Habits. Mixing the two creates cognitive friction during a routine check-in.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 03</div>
+        <div class="dc-title">Story is designed to feel magical</div>
+        <div class="dc-body">The monthly view uses richer visual components, warmer language, and a layout that rewards scrolling. The heatmap, goal vs actual bars, and summary badges are designed to make a month of data feel like a narrative.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">Users should be excited to visit Story — not afraid of it. The monthly view is the reward for daily consistency. It should feel that way.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 04</div>
+        <div class="dc-title">Habits is primary nav, not settings</div>
+        <div class="dc-body">Habits lives in the main sidebar at the same level as Now, Pulse, and Story — not buried in a Settings menu.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">Adding and editing habits is the most consequential configuration in the app. Burying it in Settings creates friction for the most important action a new user needs to take.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 05</div>
+        <div class="dc-title">Habits use a modal, not a sub-page</div>
+        <div class="dc-body">Adding and editing habits opens a modal overlay on the habits list — not a separate page. The modal closes back to the list.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">A modal keeps the context — the user can see the list behind the overlay and immediately see their change reflected when they close it. A sub-page loses that context.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 06</div>
+        <div class="dc-title">Reflect uses serif typography</div>
+        <div class="dc-body">The Reflect section uses Lora serif for the journal textarea, prompts, and intentions — the only place in the app where the typeface changes from Plus Jakarta Sans.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">A typographic shift signals an emotional shift. When you see serif text in Consyst, you know you've entered a different kind of space — quieter, more personal.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 07</div>
+        <div class="dc-title">Light mode only — no dark mode</div>
+        <div class="dc-body">The entire application uses one warm light theme. There is no dark mode, no toggle, no system preference detection.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">Consistency in tone reinforces the feeling that everything belongs to the same unified system. A single theme is a design statement — not an oversight.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 08</div>
+        <div class="dc-title">Web-first, not mobile-first</div>
+        <div class="dc-body">Consyst is designed as a web application with responsive behavior for mobile screens.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">A web-first approach gives the design room to breathe — proper sidebars, data-rich widgets, multi-column layouts. The desktop viewport is where the OS metaphor is most powerful.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 09</div>
+        <div class="dc-title">Consyst speaks — in cards, not notifications</div>
+        <div class="dc-body">The "Consyst" observation widget appears in Now and is referenced in Pulse and Story. It delivers one contextual observation at a time, signed with the Consyst logo.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">The companion relationship requires Consyst to have a voice. But that voice must feel earned — surfaced from real data, delivered quietly, never as a push notification or gamification badge.</div>
+      </div>
+
+      <div class="dc">
+        <div class="dc-tag">Decision 10</div>
+        <div class="dc-title">Grade messages are forward-looking, not backward</div>
+        <div class="dc-body">The grade card in Pulse always frames the grade in terms of what's still possible — never in terms of what was missed.</div>
+        <div class="dc-rule"></div>
+        <div class="dc-rationale">"You're doing well — one strong finish away from an A" is more useful than "you scored 78%." The first statement tells you what to do next. The second just describes where you are.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- 08 STATUS -->
+<div class="doc-section" id="status">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">08</div>
+      <div>
+        <div class="sh-title">Design Status</div>
+        <p class="sh-intro">Where the design work stands as of this document — what has been designed, what it contains, and what comes next.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Section design status</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th style="width:5px;padding:0;"></th>
+            <th>Section</th>
+            <th>Key components designed</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:#111;"></span></td>
+            <td><div class="status-name">Now</div><div class="status-desc">Dashboard</div></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards, today check-in widget, top performer, needs a push, week strip, Consyst notice</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--amber);"></span></td>
+            <td><div class="status-name">Pulse</div><div class="status-desc">Weekly</div></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards, grade card with message + threshold bar, habit × day grid with live checkboxes, progress bars, streaks</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--teal);"></span></td>
+            <td><div class="status-name">Story</div><div class="status-desc">Monthly</div></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards, month picker, goal vs actual, intensity heatmap, consistency trend chart, monthly habit summary</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--purple);"></span></td>
+            <td><div class="status-name">Habits</div><div class="status-desc">Setup + modal</div></td>
+            <td style="font-size:11px;color:var(--stone);">3 stat cards, sortable habit table, add/edit modal with name, icon grid, category, day-pip goals, description</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--blue);"></span></td>
+            <td><div class="status-name">Reflect</div><div class="status-desc">Journal</div></td>
+            <td style="font-size:11px;color:var(--stone);">Monthly wins card, gaps &amp; risks card, notes &amp; journal textarea, next month intentions — all in 2×2 + 2 full-width layout</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td class="status-acc"><span class="status-bar" style="background:var(--dust);"></span></td>
+            <td><div class="status-name">Settings ⚙</div><div class="status-desc">Preferences</div></td>
+            <td style="font-size:11px;color:var(--stone);">Account, reminders + toggles, profile stats + system history, data export, danger zone</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Open questions for future sessions</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">Q1</div><div><div class="pi-title">First-time user flow — no onboarding</div><div class="pi-text">Onboarding was removed. The decision was: take the user directly to Now, then prompt them to add habits if none exist. The exact first-run experience (empty states, prompts, initial habits setup) has not been designed.</div></div></div>
+        <div class="pi"><div class="pi-n">Q2</div><div><div class="pi-title">Empty states</div><div class="pi-text">What does Now look like with no habits? What does Pulse look like in the first week? What does Story look like in the first month? Empty states need companion-voice copy and gentle prompts to get started.</div></div></div>
+        <div class="pi"><div class="pi-n">Q3</div><div><div class="pi-title">Mobile responsive behavior</div><div class="pi-text">The sidebar collapses on mobile. The score card row stacks vertically. The habit × day grid in Pulse requires horizontal scrolling on small screens. Breakpoints and mobile layout adaptations have not been formally defined.</div></div></div>
+        <div class="pi"><div class="pi-n">Q4</div><div><div class="pi-title">Intelligence model behind Consyst's observations</div><div class="pi-text">The "Consyst" widget in Now surfaces one observation at a time. The logic behind what triggers an observation — thresholds, pattern detection, note analysis — has not been defined.</div></div></div>
+      </div>
+    </div>
+
+    <div class="callout blue">
+      <p>All core screens are now complete — Now, Pulse, Story, Habits, Reflect, Settings, Landing, Sign in. See Chapters 09–11 for Settings, marketing pages, and visual design references. Remaining work: empty states, mobile breakpoints, first-run experience.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 09 LANDING & SIGN IN -->
+<div class="doc-section" id="marketing">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">09</div>
+      <div>
+        <div class="sh-title">Landing &amp; Sign In Pages</div>
+        <p class="sh-intro">The two pages that exist outside the app — the first impression and the door back in.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design philosophy — marketing pages</div>
+      <p class="prose">The landing page has one job: make someone feel something before they read anything. Consyst is not competing on features — it's competing on philosophy. The person landing here has probably tried habit trackers before and abandoned them. The page must speak to that skepticism directly and honestly, not lead with a feature checklist.</p>
+      <p class="prose">The sign in page is a door — the moment before stepping back into your system. It should feel quiet and confident, carry the brand without noise, and complete in as few interactions as possible.</p>
+      <div class="callout">
+        <p>Aesthetic direction: editorial minimalism with conviction. Large type, deliberate whitespace, the product shown with pride. Think the editorial confidence of a quality print magazine — not a startup landing page template.</p>
+      </div>
+    </div>
+
+    <!-- LANDING PAGE -->
+    <div class="sub">
+      <div class="sub-label">Landing page — consyst.io</div>
+      <p class="prose">Seven sections. Each has a distinct emotional job. The page is fully responsive — mobile collapses the nav, stacks all grids, and hides the sidebar demo on small viewports.</p>
+
+      <div class="principle-list" style="margin-top:20px;">
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--teal);font-weight:700;">01</div>
+          <div>
+            <div class="pi-title">Hero — the brand statement lands first</div>
+            <div class="pi-text">Opens with a pulsing teal dot and the eyebrow "Personal operating system", then the headline: <strong>"Motivation fades. Systems don't."</strong> in large display type — before any feature or screenshot is shown. A Lora italic subtitle follows: "Most habit apps sell you inspiration. Consyst builds you infrastructure." Two CTAs: "Start your system →" (primary, ink-black) and "See how it works →" (secondary, text link). A social proof strip with avatar icons anchors the bottom of the hero. A subtle background mark using the Pulse Stack logo in low opacity sits behind the text.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--dust);font-weight:700;">—</div>
+          <div>
+            <div class="pi-title">Marquee strip — brand vocabulary in motion</div>
+            <div class="pi-text">An ink-black band running across the full viewport after the hero. Section names (Now · Pulse · Story · Habits · Reflect) and brand phrases (Consistency over intensity · Small is permanent) scroll continuously. Teal dots separate items. Creates a transition between the hero and the problem section while reinforcing the brand language.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--ink);font-weight:700;">02</div>
+          <div>
+            <div class="pi-title">Problem section — acknowledge the skeptic</div>
+            <div class="pi-text">Full ink-black background — a deliberate, heavy tone shift. A 2×2 grid of four problems: (1) They sell motivation, not infrastructure, (2) They punish imperfection, (3) They show you data instead of insights, (4) They're built for weeks, not lives. Each cell has a number, a bold headline, and a short honest description with key phrases in lighter grey for emphasis. Closes with a Lora serif pull quote: "Most habit apps are mirrors. <span style="color:var(--teal);">Consyst is a compass.</span>"</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--ink);font-weight:700;">03</div>
+          <div>
+            <div class="pi-title">Pillars — the three beliefs</div>
+            <div class="pi-text">Returns to the warm light background. Three cards in a row: Focus beats motivation, Small is permanent, The journey is the destination. Each has an icon, a pillar number, a two-line title, and a paragraph. Cards have a hover state that shifts to chalk background. The grid collapses to single column on mobile.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--ink);font-weight:700;">04</div>
+          <div>
+            <div class="pi-title">Product showcase — the real app, not a mockup</div>
+            <div class="pi-text">Chalk background section. A browser frame showing the actual Now dashboard — sidebar, score cards, today's check-in, top performer, Consyst notice. The browser floats with a gentle up-down CSS animation. Real data (Alex, Week 13, 78% score, 14-day streak) is shown — not placeholder lorem ipsum. The section header reads "Five sections. Six screens. No sub-navigation." The app screenshot is the product's best argument.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--ink);font-weight:700;">05</div>
+          <div>
+            <div class="pi-title">How it works — five steps, five sections</div>
+            <div class="pi-text">A stacked list of five rows — one per section. Each row has a large number, the section name in its brand color, a one-line title, and a two-sentence description. A frequency badge sits on the right (Every session / 2–3× weekly / Once a month / When needed / When it matters). Rows have a hover state. The list maps directly to the app's navigation — the user learns the structure of Consyst before they sign up.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--ink);font-weight:700;">06</div>
+          <div>
+            <div class="pi-title">Companion section — the emotional close</div>
+            <div class="pi-text">Returns to ink-black. Two-column layout: left side has a large Lora serif quote — "Consyst is not a tool you use when you remember to. It's infrastructure that runs with you." Right side has four companion promises as bullet points with colored dots: It remembers everything (coral), It notices what you miss (amber), It never judges (teal), It grows with you (blue). The four dots map to the four bars in the Pulse Stack logo — intentional but subtle.</div>
+          </div>
+        </div>
+
+        <div class="pi">
+          <div class="pi-n" style="color:var(--teal);font-weight:700;">07</div>
+          <div>
+            <div class="pi-title">CTA — close with the brand line</div>
+            <div class="pi-text">Returns to the warm light background. Centred layout. The Pulse Stack logo mark sits above the headline. The headline is the brand line in full: <strong>"You don't use Consyst. <span style="color:var(--teal);">You run on it.</span>"</strong> A Lora italic sub ("Start with the habits that matter most. Add more as the system earns your trust.") and one CTA button. A small note below: "No credit card · No onboarding ceremony · Just start."</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SIGN IN PAGE -->
+    <div class="sub">
+      <div class="sub-label">Sign in page — consyst.io/signin</div>
+      <p class="prose">A split two-column layout. Left panel is ink-black carrying the brand. Right panel is the warm light background with the form. Fully responsive — stacks vertically on mobile with the left panel shrinking to a brand header strip.</p>
+
+      <div class="decisions-grid" style="margin-top:20px;">
+
+        <div class="dc">
+          <div class="dc-tag">Left panel</div>
+          <div class="dc-title">The brand lives here</div>
+          <div class="dc-body">Ink-black, 480px wide on desktop. Contains: the Consyst logo at the top, a Lora serif quote ("The system is already running. <em>You just need to step back in.</em>"), a two-sentence description, a mini app preview card showing Alex's current state (week score, streak, habit checkboxes with done/open states), and the four animated rising bars from the Pulse Stack mark with a "Personal operating system" tagline. A subtle 32px grid texture overlays the panel at low opacity.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">The left panel reassures the returning user that their data is intact and waiting. The mini preview shows real state — not a generic illustration — making the panel feel personal rather than decorative.</div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-tag">Right panel — form</div>
+          <div class="dc-title">Two tabs, one clean form</div>
+          <div class="dc-body">A segmented control switches between Sign in and Create account — no separate page for each. Sign in: email + password fields, forgot password link, "Enter Consyst →" submit button, Google sign-in option. Create account: first + last name (two columns), email, password with a 4-bar live strength indicator, "Start your system →" submit button, Google sign-up option. A "← consyst.io" back link sits fixed in the top-right corner.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">One URL for both sign in and create account removes the friction of navigating between pages. The tab switcher also updates the headline and subtitle dynamically — "Sign in to Consyst" becomes "Start your system" without a page reload.</div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-tag">Submit behavior</div>
+          <div class="dc-title">Immediate feedback on click</div>
+          <div class="dc-body">The submit button changes state on click without waiting for a server response: "Enter Consyst" → "Signing in…" (teal background) → "Welcome back ✓" after 1.2s. Create account: "Start your system" → "Setting up…" → "System ready ✓". The button never goes disabled and grey — it always communicates forward momentum.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">Companion language extends to micro-interactions. "Welcome back ✓" and "System ready ✓" are in the Consyst voice — warm, confident, personal. Not "Success" or "Done."</div>
+        </div>
+
+        <div class="dc">
+          <div class="dc-tag">Password strength</div>
+          <div class="dc-title">Four bars, colour-coded</div>
+          <div class="dc-body">Appears only on the Create account tab. Four thin bars below the password input, updating live as the user types. Empty = chalk. 4+ chars = one coral bar. 8+ = two amber bars. 12+ = three teal bars. 16+ = four teal bars. No text labels, no "weak/strong" words — the color and count communicate clearly without moralizing.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">The four bars reference the Pulse Stack logo subconsciously — four bars rising from left to right, gaining height and changing from warm to cool. Functional and on-brand simultaneously.</div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Page structure summary</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>Page</th>
+            <th>URL</th>
+            <th>Sections / components</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="status-name">Landing page</div><div class="status-desc">Marketing · first impression</div></td>
+            <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">consyst.io</td>
+            <td style="font-size:11px;color:var(--stone);">Nav · Hero · Marquee · Problem · Pillars · Product showcase · How it works · Companion · CTA · Footer</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Sign in page</div><div class="status-desc">Auth · two-tab form</div></td>
+            <td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">consyst.io/signin</td>
+            <td style="font-size:11px;color:var(--stone);">Left brand panel · Right form panel · Sign in tab · Create account tab · Google OAuth</td>
+            <td><span class="badge badge-done">Designed</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Key design decisions — marketing pages</div>
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">D1</div>
+          <div>
+            <div class="pi-title">Brand statement before features</div>
+            <div class="pi-text">The hero headline ("Motivation fades. Systems don't.") appears before any screenshot, feature list, or pricing information. The emotional hook is placed first because Consyst earns attention through philosophy, not through feature comparison.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">D2</div>
+          <div>
+            <div class="pi-title">The problem section is written for the skeptic</div>
+            <div class="pi-text">Every line in the problem section is written assuming the reader has tried and abandoned at least one other habit app. It doesn't sell Consyst — it validates the frustration first. The product isn't mentioned until the pull quote at the end of the section.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">D3</div>
+          <div>
+            <div class="pi-title">Real app UI in the product showcase — no illustrations</div>
+            <div class="pi-text">The product showcase section shows the actual Now dashboard, not a stylised illustration or abstract wireframe. Real habit names, real data, real sidebar. The app is the argument — showing it without distortion is more persuasive than any marketing copy.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">D4</div>
+          <div>
+            <div class="pi-title">The CTA closes with the brand line, not a discount</div>
+            <div class="pi-text">"You don't use Consyst. You run on it." is the last thing a reader sees before they decide. No pricing urgency, no "free trial ends soon" mechanics. The brand line is the close — the app earns sign-ups through conviction, not pressure.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">D5</div>
+          <div>
+            <div class="pi-title">Sign in and create account on one URL</div>
+            <div class="pi-text">Both flows live on the same page, separated by a tab switcher. No /login vs /register split. Returning users and new users arrive at the same door — the tab switcher handles routing. This reduces URL surface area and removes the decision of which link to click from external CTAs.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">D6</div>
+          <div>
+            <div class="pi-title">Lora serif used on both pages for emotional moments</div>
+            <div class="pi-text">The hero subtitle, the problem pull quote, the companion section quote, the CTA subtitle, the sign in left panel quote — all use Lora italic. This is the same typeface used in the Reflect section inside the app. The serif creates continuity between the marketing voice and the companion voice inside the product.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+
+<!-- 10 SETTINGS -->
+<div class="doc-section" id="settings">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">10</div>
+      <div>
+        <div class="sh-title">Settings Screen</div>
+        <p class="sh-intro">The back panel of the OS — one scrollable screen, no sub-navigation, accessed via the gear icon at the sidebar footer.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design intent</div>
+      <p class="prose">Settings is visited rarely and deliberately. The design feels like opening the preferences panel of software you trust completely — precise, clean, nothing surprising. No tabs, no internal navigation, no wizards. One scroll reveals everything. The "Save changes" button in the top bar gives immediate feedback: it becomes "Saved ✓" in teal on click, then resets after 1.8 seconds — keeping the companion voice present even in the most functional part of the app.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Five sections — in order top to bottom</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">S1</div><div><div class="pi-title">Account — name, email, password</div><div class="pi-text">Three form rows: name (how Consyst addresses you), email (used to sign in), password (with last-changed date as the sub-label). No surprises, no extra fields. The name field is the same name used throughout the app in greetings and milestones.</div></div></div>
+        <div class="pi"><div class="pi-n">S2</div><div><div class="pi-title">Reminders &amp; rhythm — four toggles, two time selectors</div><div class="pi-text">Daily check-in reminder (toggle + time selector). Weekly review reminder (toggle + day selector + time selector). Consyst observations (toggle). Milestone alerts (toggle). All toggles are interactive — click to flip between on (teal) and off (border-grey). Time selectors are always visible to show current settings at a glance.</div></div></div>
+        <div class="pi"><div class="pi-n">S3</div><div><div class="pi-title">Your Consyst profile — stats + system history</div><div class="pi-text">Four stat cards: days running (teal), best streak (amber), active habits (purple), average score (blue). Below the cards: a system history log showing every habit change ever made — dated entries recording additions, goal adjustments, and archiving. This turns Settings from a utility screen into a quiet record of the user's journey. The history is read-only — a permanent log, not editable.</div></div></div>
+        <div class="pi"><div class="pi-n">S4</div><div><div class="pi-title">Data &amp; export — three stats, four export options</div><div class="pi-text">Three data stats (days of data, check-in records, notes &amp; entries) give transparency about what Consyst holds. Four export options: CSV (all habit data), PDF (monthly report card), TXT (all journal entries as plain text), ZIP (everything — CSV, all PDFs, TXT, full JSON backup). The ZIP "Export all" button uses ink-black to signal it is the most complete action. A teal-tinted privacy note confirms data is never shared or sold.</div></div></div>
+        <div class="pi"><div class="pi-n">S5</div><div><div class="pi-title">Danger zone — at the bottom, visually distinct</div><div class="pi-text">Red border, red header background, red title. Two buttons: Reset all data and Delete account. Both trigger a browser confirmation dialog before executing — genuine friction for irreversible actions. The section is last, visually subordinate to everything above it.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Key design decisions — Settings</div>
+      <div class="decisions-grid">
+        <div class="dc"><div class="dc-tag">Decision 01</div><div class="dc-title">One scroll, no tabs</div><div class="dc-body">All setting areas live on one scrollable page with clear section cards. No tabs, no sub-pages.</div><div class="dc-rule"></div><div class="dc-rationale">The user visits Settings to do something specific. Every additional navigation layer is friction. A single scroll makes everything immediately findable.</div></div>
+        <div class="dc"><div class="dc-tag">Decision 02</div><div class="dc-title">Profile stats live in Settings</div><div class="dc-body">Days running, best streak, active habits, and average score appear in the Profile section — not as persistent sidebar elements.</div><div class="dc-rule"></div><div class="dc-rationale">These numbers are context, not action. Alongside the system history they make Settings feel like a record of the journey, not just a preferences panel.</div></div>
+        <div class="dc"><div class="dc-tag">Decision 03</div><div class="dc-title">System history is read-only</div><div class="dc-body">The habit change log is a permanent, read-only record. Users cannot edit or delete entries.</div><div class="dc-rule"></div><div class="dc-rationale">The history is a form of memory — it shows how the system has evolved. Making it editable would undermine its value as a truthful record.</div></div>
+        <div class="dc"><div class="dc-tag">Decision 04</div><div class="dc-title">Danger zone requires confirmation</div><div class="dc-body">Reset and Delete trigger a browser confirm() dialog. Red styling communicates severity; the dialog enforces intentionality.</div><div class="dc-rule"></div><div class="dc-rationale">Two layers of friction for the most irreversible action in the app — the color signals danger, the dialog demands deliberate consent.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 11 VISUAL DESIGNS -->
+<div class="doc-section" id="visuals">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">11</div>
+      <div>
+        <div class="sh-title">Visual Designs</div>
+        <p class="sh-intro">A reference summary of every screen designed across all sessions. Full interactive versions are available as standalone HTML files.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Complete screen inventory</div>
+      <table class="status-table">
+        <thead>
+          <tr><th>Screen</th><th>Section</th><th>Key components</th><th>File</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="status-name">Now — Dashboard</div><div class="status-desc">Opens on every session</div></td>
+            <td><span class="badge" style="background:#F2F1EC;color:#111;">01 Now</span></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards · today check-in widget · top performer · needs a push · week-at-a-glance strip · Consyst notice widget</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Pulse — Weekly</div><div class="status-desc">2–3× per week</div></td>
+            <td><span class="badge badge-done" style="background:var(--amber-lt);color:#633806;">02 Pulse</span></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards · grade card with forward-looking message + threshold bar · habit × day grid with live checkboxes · progress bars · streaks per habit</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Story — Monthly</div><div class="status-desc">Once a month · magical</div></td>
+            <td><span class="badge badge-done">03 Story</span></td>
+            <td style="font-size:11px;color:var(--stone);">4 score cards · month picker · goal vs actual bars · intensity heatmap (habits × weeks) · consistency trend chart + mini week cards · monthly habit summary with badges</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Habits — Setup</div><div class="status-desc">First use · occasionally</div></td>
+            <td><span class="badge" style="background:var(--purple-lt);color:#3C3489;">04 Habits</span></td>
+            <td style="font-size:11px;color:var(--stone);">3 stat cards · sortable habit table (drag, name, category, goal, streak, status, actions) · Add/Edit modal (name, 16-icon grid, category dropdown, day-pip goal selector, description textarea)</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Reflect — Journal</div><div class="status-desc">When it matters</div></td>
+            <td><span class="badge" style="background:var(--blue-lt);color:#0C447C;">05 Reflect</span></td>
+            <td style="font-size:11px;color:var(--stone);">Monthly wins card (teal) · Gaps &amp; risks card (amber) · Notes &amp; journal full-width Lora serif textarea · Next month intentions full-width italic list</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Settings</div><div class="status-desc">Rarely · gear icon</div></td>
+            <td><span class="badge" style="background:var(--chalk);color:var(--stone);">⚙ Settings</span></td>
+            <td style="font-size:11px;color:var(--stone);">Account (name, email, password) · Reminders (4 toggles, time selectors) · Profile (4 stat cards + system history log) · Data &amp; export (3 stats + 4 export options + privacy note) · Danger zone (confirm dialogs)</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);">in-app</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Landing page</div><div class="status-desc">Marketing · first impression</div></td>
+            <td><span class="badge" style="background:var(--teal-lt);color:#085041;">consyst.io</span></td>
+            <td style="font-size:11px;color:var(--stone);">Fixed nav · Hero (brand statement, Lora italic sub, two CTAs) · Marquee strip · Problem (2×2 ink-black grid + pull quote) · Three pillars · Product showcase (live Now UI in floating browser) · How it works (5 steps) · Companion (ink-black, 4 promises) · CTA · Footer</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--teal);">consyst-landing.html</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Sign in page</div><div class="status-desc">Auth · returning + new users</div></td>
+            <td><span class="badge" style="background:var(--blue-lt);color:#0C447C;">/signin</span></td>
+            <td style="font-size:11px;color:var(--stone);">Left panel (ink-black, brand quote, mini app preview, animated rising bars) · Right panel (tab switcher, Sign in form, Create account form with password strength indicator, Google OAuth, privacy note)</td>
+            <td style="font-size:10px;font-family:'DM Mono',monospace;color:var(--blue);">consyst-signin.html</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design system — applied consistently across all screens</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">DS1</div><div><div class="pi-title">Sidebar — permanent, always identical</div><div class="pi-text">196px wide. White background. Logo top, 5 nav items with colored dots, Settings gear + user profile at bottom. Active state uses the section's light-tinted background (e.g. amber-lt for Pulse, teal-lt for Story). Never changes between sections — it is the OS shell.</div></div></div>
+        <div class="pi"><div class="pi-n">DS2</div><div><div class="pi-title">Top bar — section title + contextual right elements</div><div class="pi-text">Full-width, white background, bottom border. Left: date in DM Mono + section title in 17px/800 weight. Right: varies by section — week badge and streak pill on Now/Pulse/Story, "+ Add habit" button on Habits, nothing on Reflect, "Save changes" on Settings.</div></div></div>
+        <div class="pi"><div class="pi-n">DS3</div><div><div class="pi-title">Widget cards — consistent anatomy</div><div class="pi-text">White surface, 1px border (#E8E7E2), 11–14px border-radius. Chalk (#F2F1EC) header with bottom border. Content area with 13–15px padding. All widgets follow this pattern — it creates visual cohesion across every section without reducing flexibility.</div></div></div>
+        <div class="pi"><div class="pi-n">DS4</div><div><div class="pi-title">Score cards — four per section, grid layout</div><div class="pi-text">Now, Pulse, Story, and Habits each open with four score cards in a 4-column grid. Each card has: a DM Mono label, a large value in the section's accent color, a sub-label in stone, and a 3px progress bar. Consistent structure, variable content.</div></div></div>
+        <div class="pi"><div class="pi-n">DS5</div><div><div class="pi-title">Color semantics — used consistently everywhere</div><div class="pi-text">Teal = done / positive / on-track. Amber = close / watch / in-progress. Coral = today / urgent. Blue = insights / Reflect. Purple = habits / system. These meanings never reverse — the user builds an unconscious understanding within the first few sessions.</div></div></div>
+        <div class="pi"><div class="pi-n">DS6</div><div><div class="pi-title">Typography hierarchy — three levels</div><div class="pi-text">Display (17–22px, 800 weight, -0.5px tracking): section titles and score card values. Body (11–13px, 500–700 weight): widget content, labels, habit names. Metadata (9–10px, DM Mono): timestamps, section numbers, percentage labels, all system data. Lora serif appears only in Reflect and on marketing pages.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Delivered files</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">📄</div><div><div class="pi-title">consyst-sitemap-design-decisions-v4.html</div><div class="pi-text">This document. Complete sitemap, all design decisions, all chapters. Open in any browser.</div></div></div>
+        <div class="pi"><div class="pi-n">🌐</div><div><div class="pi-title">consyst-landing.html</div><div class="pi-text">The full landing page — all seven sections, animations, floating product demo. Links to consyst-signin.html.</div></div></div>
+        <div class="pi"><div class="pi-n">🔐</div><div><div class="pi-title">consyst-signin.html</div><div class="pi-text">The sign in / create account page. Two-tab form, Google OAuth, password strength indicator, left brand panel. Links to consyst-landing.html.</div></div></div>
+      </div>
+    </div>
+
+    <div class="callout">
+      <p>All app screens (Now, Pulse, Story, Habits, Reflect, Settings) were designed as interactive HTML widgets within the design sessions. They are not delivered as separate files — they are documented in detail in Chapters 04 and 10, and referenced in this chapter. When development begins, these designs are the source of truth.</p>
+    </div>
+  </div>
+</div>
+
+
+<!-- 12 EMPTY STATES -->
+<div class="doc-section" id="emptystates">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">12</div>
+      <div>
+        <div class="sh-title">Empty States — Day 1</div>
+        <p class="sh-intro">What every screen looks like when a new user arrives with no data, no habits, and no history. The companion speaks first on every screen.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design philosophy — empty states</div>
+      <p class="prose">Empty states are harder than full states. When there is no data, the interface must do two things simultaneously: explain what this screen is for, and invite the user to begin. Done wrong it feels like a blank wall. Done right it feels like an open door.</p>
+      <p class="prose">The principle applied across all five empty states: <strong>the companion speaks first.</strong> Every empty state is Consyst making its first meaningful statement to this specific user. Not "No data found." Not "Get started." Something considered and personal. Each screen also shows a ghost or preview of what it will look like when populated — the user can see the shape of what they are building toward.</p>
+      <div class="callout">
+        <p>Empty states are not error states. They are <em>beginning states</em> — the first page of the story. The tone is warm, the direction is clear, and the companion's voice is present from the very first moment.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Now — Day 1 empty state</div>
+      <p class="prose"><strong>Situation:</strong> New user has signed in. No habits added yet. The dashboard has nothing to show.</p>
+      <p class="prose"><strong>Design approach:</strong> Ghost score cards — the four card outlines are present at low opacity with dashed borders, showing the user the shape of what will fill in. Ghost widget skeletons below. In the centre, a teal seedling icon, the eyebrow "Day 1 · Nothing tracked yet", the headline "Your dashboard fills up as you show up.", and a Lora italic body explaining that score cards and insights appear once habits are running. The CTA is "Add your first habit →" in teal — the most direct possible action. A Consyst note at the bottom: "Start with 2 or 3 habits — not ten. The system earns your trust through consistency, not ambition."</p>
+      <p class="prose"><strong>Key decision:</strong> The top bar greeting changes on Day 1. Instead of "Good morning, Alex." with the date, it reads: "Your system is ready — let's build it." with "Day 1" on the right. This is the only day the greeting changes from the standard format — it marks the beginning without ceremony.</p>
+      <div class="callout amber">
+        <p>Ghost elements are shown at 30–35% opacity with dashed borders. They communicate "this is what you will see" without being distracting or confusing. The user understands immediately that data will fill these shapes.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Pulse — Day 1 empty state</div>
+      <p class="prose"><strong>Situation:</strong> User visits Pulse in their first week with no check-ins logged yet, or before adding any habits.</p>
+      <p class="prose"><strong>Design approach:</strong> A ghost version of the habit × day grid — dashed outlines where the checkboxes will be, with the amber "today" column slightly more visible to orient the user. The headline: "Your weekly rhythm starts today." The body explains Pulse shows each week habit by habit, day by day, and that the grid fills in as they check off habits in Now. Two CTAs: "Go check in today →" (amber primary) and "or add your habits first" (text secondary). The Consyst note teaches the user how to use the section: "Pulse is most useful mid-week — when there's still time to course-correct. Come back Wednesday or Thursday."</p>
+      <p class="prose"><strong>Key decision:</strong> Pulse's empty state is the only one with two CTAs — because there are genuinely two valid starting points depending on whether the user has habits yet. The secondary CTA is a text link, not a button, to maintain visual hierarchy.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Story — Day 1 empty state</div>
+      <p class="prose"><strong>Situation:</strong> User visits Story on Day 1 or early in Month 1 with no meaningful data to show.</p>
+      <p class="prose"><strong>Design approach:</strong> The most visual of the five empty states. A row of six bars representing months — March is a small teal-filled block with a striped texture (representing the current, in-progress month). April through August are empty dashed outlines, each one taller than the last — a rising arc of future months yet to be written. Below the bars: "YOUR ARC — IT BUILDS FROM HERE" in tiny mono caps. The month picker in the top bar is shown at low opacity. The headline: "Every great story starts on page one." The Lora body: "Story shows you the arc — heatmaps, trends, your best habits and your growing ones. Come back at the end of the month and see what you built." The Consyst note sets time expectations honestly: "Story gets richer with time. After one month you'll see trends you couldn't have noticed yourself. After three, you'll know your system deeply."</p>
+      <p class="prose"><strong>Key decision:</strong> The rising bars illustration is the emotional centrepiece. It visualises the potential of the system — the arc you haven't written yet — without overpromising. The bars are empty dashed outlines, not filled with hypothetical data.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Habits — Day 1 empty state</div>
+      <p class="prose"><strong>Situation:</strong> User arrives at Habits with no habits configured. This is the most active empty state — the user must do something here.</p>
+      <p class="prose"><strong>Design approach:</strong> Deliberately the most action-oriented of the five. No ghost elements, no patience required. A direct question as the headline: "What dimensions of your life do you want to track?" Below: a grid of suggestion chips — Exercise, Meditation, Reading, Sleep 7+, Running, Journaling, Hydration, + Something else — all hoverable and tappable. These are suggestions, not a forced onboarding form. The user can ignore them and click "+ Add habit" directly. The primary CTA is "Add your first habit →" in purple. The "+ Add habit" button in the top bar is also always visible. The Consyst note delivers the key philosophy upfront: "Be honest about your capacity. A 3× per week goal you keep is worth more than a 7× goal you break."</p>
+      <p class="prose"><strong>Key decision:</strong> Suggestion chips instead of a blank input field. Starting from zero with a blank input creates friction and decision paralysis. Chips give the user momentum — they feel closer to starting if they can see familiar options already named. The chips are not a form; selecting one still opens the full add-habit modal so the user can customise everything.</p>
+      <div class="callout">
+        <p>Habits is the only empty state where the top bar CTA ("+ Add habit") is active and visible. On all other empty screens, the top bar is minimal. Habits needs to signal clearly that action is possible from multiple points on the screen.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Reflect — Day 1 empty state</div>
+      <p class="prose"><strong>Situation:</strong> User opens Reflect on Day 1 with nothing written yet — no wins, no gaps, no journal entries, no intentions.</p>
+      <p class="prose"><strong>Design approach:</strong> The calmest of the five empty states, matching the section's overall tone. Five ruled lines like a blank notebook page — the first line in a faint teal, the rest in the standard border colour. No ghost cards, no skeleton UI. The headline is quiet: "This is your space. No rules." The body is in Lora italic — a quote-like statement: "You can start a win today, note something you want to pay attention to, or just write what's on your mind. There's no wrong way to use this." Three contextual entry points replace a single CTA: Record a win (teal hover), Write a note (blue hover), Set a monthly intention (purple hover). Each card has a name and a one-line description. The Consyst note is honest about timing: "Reflect works best at the end of a month — when you have something to look back on. But you can write here any time."</p>
+      <p class="prose"><strong>Key decision:</strong> Three entry points instead of one CTA. Reflect serves different purposes at different moments — a win is different from a note is different from an intention. Forcing the user through one button loses that nuance. The three-option layout respects that they might be here for any of those reasons.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Empty state design decisions — cross-cutting</div>
+      <div class="decisions-grid">
+        <div class="dc">
+          <div class="dc-tag">Decision 01</div>
+          <div class="dc-title">Companion speaks on every empty screen</div>
+          <div class="dc-body">Every empty state ends with a Consyst-signed observation — a small card with the logo and one piece of genuine guidance specific to that screen.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">The companion relationship begins on Day 1, not after data accumulates. The Consyst note on each empty screen is the system's first act of being useful — before there is any data to analyse.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-tag">Decision 02</div>
+          <div class="dc-title">Ghost elements show the future shape</div>
+          <div class="dc-body">Now and Pulse show ghost versions of their primary UI elements — score cards and the habit grid — at low opacity with dashed borders.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">Ghost elements answer the question "what will this look like?" without requiring explanation. The user understands immediately that data will fill these shapes. It also makes the screen feel less empty — there is structure here, waiting to be populated.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-tag">Decision 03</div>
+          <div class="dc-title">Day 1 greeting is different — once only</div>
+          <div class="dc-body">The Now top bar greeting changes on Day 1 to "Your system is ready — let's build it." Every subsequent day it returns to the standard "Good morning, Alex."</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">Day 1 deserves acknowledgement without ceremony. One changed line in the top bar marks the beginning. The standard greeting returns immediately on Day 2 — the system is already running, no ongoing fanfare.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-tag">Decision 04</div>
+          <div class="dc-title">No onboarding flow — Habits is the entry point</div>
+          <div class="dc-body">There is no separate onboarding wizard or welcome sequence. The user lands on Now (empty state), which directs them to Habits to add their first habit.</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">Onboarding flows create friction before value. The empty state of Now acts as the onboarding — it explains the situation, shows what's missing, and provides a direct path to fix it. The user is in the real app from the first second.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-tag">Decision 05</div>
+          <div class="dc-title">Each empty state teaches the section's purpose</div>
+          <div class="dc-body">The Consyst note on each empty screen explains not just what to do but when the section is most useful — e.g. "Pulse is most useful mid-week", "Story gets richer after one month."</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">New users don't know the app's rhythm yet. The empty states are the best moment to teach it — when the user is curious and paying attention, before habits and data create urgency.</div>
+        </div>
+        <div class="dc">
+          <div class="dc-tag">Decision 06</div>
+          <div class="dc-title">Habits suggests, never forces</div>
+          <div class="dc-body">The Habits empty state shows suggestion chips but none are pre-selected. The user can click any chip to open the add modal pre-filled, or ignore them entirely and click "+ Add habit."</div>
+          <div class="dc-rule"></div>
+          <div class="dc-rationale">Forcing habit selection during onboarding was removed from the design explicitly. The suggestion chips bring back the value of that idea — reducing blank-slate paralysis — without creating a mandatory step. The user remains in control.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Empty state summary</div>
+      <table class="status-table">
+        <thead>
+          <tr><th>Screen</th><th>Visual approach</th><th>Primary CTA</th><th>Consyst note topic</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="status-name">Now</div><div class="status-desc">Dashboard</div></td>
+            <td style="font-size:11px;color:var(--stone);">Ghost score cards + ghost widgets at 30% opacity with dashed borders</td>
+            <td style="font-size:11px;color:var(--stone);">Add your first habit → (teal)</td>
+            <td style="font-size:11px;color:var(--stone);">Start with 2–3 habits, not ten</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Pulse</div><div class="status-desc">Weekly</div></td>
+            <td style="font-size:11px;color:var(--stone);">Ghost habit × day grid with dashed checkbox outlines, amber today column</td>
+            <td style="font-size:11px;color:var(--stone);">Go check in today → (amber) + secondary text link</td>
+            <td style="font-size:11px;color:var(--stone);">Pulse is most useful mid-week</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Story</div><div class="status-desc">Monthly</div></td>
+            <td style="font-size:11px;color:var(--stone);">Rising arc of month bars — March filled, future months as growing empty outlines</td>
+            <td style="font-size:11px;color:var(--stone);">Start building it → (teal)</td>
+            <td style="font-size:11px;color:var(--stone);">Story gets richer after 1 month, deeply useful after 3</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Habits</div><div class="status-desc">Setup</div></td>
+            <td style="font-size:11px;color:var(--stone);">No ghost UI — suggestion chips as immediate action prompts</td>
+            <td style="font-size:11px;color:var(--stone);">Add your first habit → (purple)</td>
+            <td style="font-size:11px;color:var(--stone);">Honest capacity — a kept 3× beats a broken 7×</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Reflect</div><div class="status-desc">Journal</div></td>
+            <td style="font-size:11px;color:var(--stone);">Five ruled notebook lines — no ghost cards, minimal and calm</td>
+            <td style="font-size:11px;color:var(--stone);">Three entry points: Win / Note / Intention</td>
+            <td style="font-size:11px;color:var(--stone);">Works best end of month, but open any time</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+<!-- 13 TECH STACK -->
+<div class="doc-section" id="techstack">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">13</div>
+      <div>
+        <div class="sh-title">Tech Stack</div>
+        <p class="sh-intro">The confirmed technology decisions for Consyst — web app first, mobile app as a fast follow-up. Optimised for a Claude Code development workflow, affordable hosting, and a fully TypeScript codebase.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Key constraints that drove the decisions</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">C1</div><div><div class="pi-title">Claude Code is writing the code</div><div class="pi-text">The stack is optimised for what Claude Code writes best — TypeScript, React, and well-documented ecosystems. Type safety means Claude Code catches its own errors as it writes. One language across the entire stack means Claude Code holds full context in one session.</div></div></div>
+        <div class="pi"><div class="pi-n">C2</div><div><div class="pi-title">Web app now, mobile as a fast follow-up</div><div class="pi-text">The web app is the primary surface. Mobile should reuse as much as possible — same database, same auth, same API, same TypeScript business logic. A complete rewrite for mobile is not acceptable.</div></div></div>
+        <div class="pi"><div class="pi-n">C3</div><div><div class="pi-title">Affordable but not free-tier</div><div class="pi-text">Free tiers have sleeping servers, row limits, and bandwidth caps that create a bad user experience for a daily-use app. The target is a production-grade setup under $55/month.</div></div></div>
+        <div class="pi"><div class="pi-n">C4</div><div><div class="pi-title">The data model is relational and PostgreSQL-native</div><div class="pi-text">The schema we designed uses check constraints, triggers, JSONB columns, partial indexes, and versioned goal rows. PostgreSQL is the only database that runs it without compromise.</div></div></div>
+        <div class="pi"><div class="pi-n">C5</div><div><div class="pi-title">No subscription logic — no billing infrastructure needed</div><div class="pi-text">Consyst is a personal tool, potentially shared freely. No Stripe, no billing tables, no plan-based feature gating. The stack does not include any payment infrastructure.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Final stack — confirmed</div>
+      <table class="status-table">
+        <thead>
+          <tr>
+            <th>Layer</th>
+            <th>Choice</th>
+            <th>Why</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="status-name">Language</div><div class="status-desc">Everything</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">TypeScript</td>
+            <td style="font-size:11px;color:var(--stone);">Best Claude Code output quality. Type system catches errors at write time. One language across frontend, backend, and mobile.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Frontend framework</div><div class="status-desc">Web app + landing page</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Next.js 14 (App Router)</td>
+            <td style="font-size:11px;color:var(--stone);">Server-side rendering for the landing page (SEO). API routes for custom backend logic. React for all UI components. One repository for the entire web product.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Database</div><div class="status-desc">PostgreSQL</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Supabase (managed Postgres)</td>
+            <td style="font-size:11px;color:var(--stone);">Our exact schema runs natively. Managed backups, connection pooling, and a data dashboard included. Open source and self-hostable if costs need to come down later.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Authentication</div><div class="status-desc">Google OAuth + email/password</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Supabase Auth</td>
+            <td style="font-size:11px;color:var(--stone);">Google OAuth built in. Session management, token refresh, and password reset emails all handled. Same client works in React Native for mobile. Saves weeks of auth infrastructure work.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">ORM</div><div class="status-desc">Database access layer</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Prisma</td>
+            <td style="font-size:11px;color:var(--stone);">TypeScript-native. Claude Code writes Prisma queries reliably and correctly. Schema migrations are managed files — no raw SQL for changes. Every query is fully typed against our data model.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Frontend hosting</div><div class="status-desc">Web deployment</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Vercel Pro</td>
+            <td style="font-size:11px;color:var(--stone);">Built by the Next.js team. Auto-deploys from GitHub on every push. Preview URLs for every branch. Global CDN. No sleeping servers.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Email</div><div class="status-desc">Transactional</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">Resend</td>
+            <td style="font-size:11px;color:var(--stone);">TypeScript SDK. Simple API. Handles password reset emails and reminder notifications. Generous free tier for low volume — upgrade only if send volume grows.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Domain</div><div class="status-desc">Already purchased</div></td>
+            <td style="font-weight:700;color:var(--teal);font-size:13px;">consyst.app</td>
+            <td style="font-size:11px;color:var(--stone);">Owner purchases and manages the domain. All subdomains (app.consyst.app, api.consyst.app) configured via Vercel DNS.</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Mobile (future)</div><div class="status-desc">Fast follow-up</div></td>
+            <td style="font-weight:700;color:var(--ink);font-size:13px;">React Native + Expo</td>
+            <td style="font-size:11px;color:var(--stone);">Shares TypeScript, Supabase client, and business logic with the web app. Same database, same auth, same API routes. Not a rewrite — an extension.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Infrastructure map</div>
+      <div class="callout blue">
+        <p style="font-family:'DM Mono',monospace;font-size:12px;line-height:2;">
+          consyst.app &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Vercel (Next.js — marketing landing page, SSR)<br>
+          app.consyst.app &nbsp;→ Vercel (Next.js — the Consyst web application)<br>
+          Database &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Supabase PostgreSQL (our exact 7-table schema)<br>
+          Auth &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Supabase Auth (Google OAuth + email/password)<br>
+          Email &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ Resend (password resets, daily reminders)<br>
+          Repository &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ GitHub (one monorepo, auto-deploys to Vercel)<br>
+          Mobile (later) &nbsp;&nbsp;→ Expo (React Native, same Supabase project)
+        </p>
+      </div>
+      <p class="prose" style="margin-top:16px;">One GitHub repository. One Vercel deployment. One Supabase project. The entire Consyst infrastructure is visible and manageable by one person — or one Claude Code session.</p>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Monthly cost breakdown</div>
+      <table class="status-table">
+        <thead>
+          <tr><th>Service</th><th>Plan</th><th>Monthly</th><th>Annual</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="status-name">Supabase</div><div class="status-desc">Database + Auth + Storage</div></td>
+            <td style="font-size:11px;color:var(--stone);">Pro</td>
+            <td style="font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;">$25</td>
+            <td style="font-size:11px;color:var(--stone);font-family:'DM Mono',monospace;">$300</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Vercel</div><div class="status-desc">Frontend hosting + CDN</div></td>
+            <td style="font-size:11px;color:var(--stone);">Pro</td>
+            <td style="font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;">$20</td>
+            <td style="font-size:11px;color:var(--stone);font-family:'DM Mono',monospace;">$240</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">Resend</div><div class="status-desc">Transactional email</div></td>
+            <td style="font-size:11px;color:var(--stone);">Free → Scale as needed</td>
+            <td style="font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;">$0–5</td>
+            <td style="font-size:11px;color:var(--stone);font-family:'DM Mono',monospace;">$0–60</td>
+          </tr>
+          <tr>
+            <td><div class="status-name">consyst.app</div><div class="status-desc">Domain</div></td>
+            <td style="font-size:11px;color:var(--stone);">Annual renewal</td>
+            <td style="font-weight:800;color:var(--ink);font-family:'DM Mono',monospace;">~$1</td>
+            <td style="font-size:11px;color:var(--stone);font-family:'DM Mono',monospace;">~$12</td>
+          </tr>
+          <tr style="background:var(--chalk);">
+            <td colspan="2" style="font-weight:700;color:var(--ink);">Total</td>
+            <td style="font-weight:800;font-size:18px;color:var(--teal);font-family:'DM Mono',monospace;">~$46–51</td>
+            <td style="font-size:13px;font-weight:700;color:var(--stone);font-family:'DM Mono',monospace;">~$552–612</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Development workflow — Claude Code</div>
+      <p class="prose">With Claude Code as the developer, the day-to-day workflow is:</p>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">01</div><div><div class="pi-title">Describe the feature</div><div class="pi-text">Give Claude Code the feature description, referencing the design document for the screen and the data model document for the schema. Both documents are the source of truth — Claude Code reads them, not you.</div></div></div>
+        <div class="pi"><div class="pi-n">02</div><div><div class="pi-title">Claude Code writes the Prisma migration (if needed)</div><div class="pi-text">Any schema changes are written as Prisma migration files. Claude Code runs: npx prisma migrate dev. The migration is versioned in the repository — the full schema history is tracked.</div></div></div>
+        <div class="pi"><div class="pi-n">03</div><div><div class="pi-title">Claude Code writes the API route</div><div class="pi-text">Next.js API routes (in /app/api/) handle custom business logic — the week score calculation, streak computation, milestone detection. These are TypeScript functions that call Prisma and return typed responses.</div></div></div>
+        <div class="pi"><div class="pi-n">04</div><div><div class="pi-title">Claude Code writes the React component</div><div class="pi-text">UI components are written in TypeScript/React, styled with Tailwind CSS, and match the designs in the design document exactly. Claude Code has the full visual spec to reference.</div></div></div>
+        <div class="pi"><div class="pi-n">05</div><div><div class="pi-title">Push to GitHub → Vercel auto-deploys</div><div class="pi-text">Every push to the main branch triggers a Vercel deployment. Changes are live in ~30 seconds. Preview deployments on every branch let you review before merging.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Mobile strategy — PWA first, React Native second</div>
+      <p class="prose"><strong>Step 1 — PWA (immediate, zero extra cost):</strong> The Next.js web app is configured as a Progressive Web App from the start. A manifest.json and service worker — roughly 20 lines of configuration — make the app installable on iOS and Android home screens. It behaves like a native app for everyday use: opens full-screen, caches recent data for offline viewing. This is done alongside the initial web build.</p>
+      <p class="prose"><strong>Step 2 — React Native + Expo (when native is needed):</strong> When the PWA experience is insufficient — push notifications, app store presence, deeper device integration — React Native with Expo is the natural extension. The Supabase JavaScript client (@supabase/supabase-js) is identical in React Native. The same database, the same auth session, the same API routes are called. Claude Code writes mobile screens in React Native using the same patterns it already knows from the web app. No second backend, no second database, no second auth system.</p>
+      <div class="callout">
+        <p>The mobile path is additive, not duplicative. Everything built for the web app is reused. The Supabase project stays the same. The TypeScript business logic stays the same. Only the UI layer changes — React components become React Native components, which Claude Code handles directly.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">What was considered and not chosen</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">Heroku — evaluated, not chosen</div><div class="pi-text">Heroku is a solid PaaS but has three problems for this use case: (1) cheap dynos sleep after 30 minutes of inactivity — bad for a daily-use app, (2) no built-in auth — Google OAuth requires weeks of additional work or another paid service, (3) similar pricing to Supabase + Vercel but significantly less included. Heroku is the right choice if the backend is Python — it is not the right choice for a TypeScript/Next.js app.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">Railway — evaluated, not chosen</div><div class="pi-text">Railway is a strong alternative to Heroku for deploying custom backends. More affordable and doesn't sleep. But like Heroku, it has no built-in auth, no auto-generated API, and no mobile SDK. The extra work to replicate what Supabase includes out of the box isn't justified for this use case.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">Firebase — not evaluated</div><div class="pi-text">Firebase uses a document database (Firestore), not a relational one. Our data model is deeply relational — versioned goals, check constraints, complex joins. Migrating the schema to a document model would require significant architectural compromises. Not considered.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">Separate backend (FastAPI, Express) — not chosen</div><div class="pi-text">A separate backend server adds a second deployment, second codebase, and second set of infrastructure to manage. Next.js API routes handle all the custom logic we need — streak calculations, milestone detection, observation engine — without a separate service. The system stays as simple as possible.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">SvelteKit / Remix — not chosen</div><div class="pi-text">Both are strong frameworks. SvelteKit has less Claude Code familiarity. Remix has a smaller ecosystem. Next.js is the highest-confidence choice for Claude Code output quality — the largest TypeScript web framework by usage and documentation coverage.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Getting started — in order</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">01</div><div><div class="pi-title">Purchase consyst.app domain</div><div class="pi-text">Already decided. Register via Namecheap, Cloudflare Registrar, or Google Domains. Cloudflare Registrar charges at-cost with no markup — recommended.</div></div></div>
+        <div class="pi"><div class="pi-n">02</div><div><div class="pi-title">Create a Supabase project</div><div class="pi-text">Start on the free tier during development. Upgrade to Pro ($25/month) before going live. Create the project in the region closest to your expected users.</div></div></div>
+        <div class="pi"><div class="pi-n">03</div><div><div class="pi-title">Create a Vercel account, connect GitHub</div><div class="pi-text">Sign up at vercel.com, connect your GitHub account. Free tier is fine during development — upgrade to Pro before launch.</div></div></div>
+        <div class="pi"><div class="pi-n">04</div><div><div class="pi-title">Start Claude Code — scaffold the project</div><div class="pi-text">Open a Claude Code session and instruct it: "Scaffold a Next.js 14 App Router project with TypeScript, Prisma, Tailwind CSS, and Supabase auth. The project is called Consyst." Then hand it the data model document to write the Prisma schema.</div></div></div>
+        <div class="pi"><div class="pi-n">05</div><div><div class="pi-title">Hand Claude Code the design document</div><div class="pi-text">The design document (consyst-sitemap-design-decisions-v4.html) contains every screen, every component, every interaction, and every design decision. It is Claude Code's complete UI brief. Start with the Now dashboard — the most important screen — and build section by section.</div></div></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+<!-- FOOTER -->
+<div class="doc-footer">
+  <div class="footer-logo">
+    <svg width="44" height="16" viewBox="0 0 88 36">
+      <rect x="0"  y="12" width="14" height="22" rx="7" fill="#F0997B"/>
+      <rect x="18" y="6"  width="14" height="28" rx="7" fill="#EF9F27"/>
+      <rect x="36" y="0"  width="14" height="36" rx="7" fill="#1D9E75"/>
+      <rect x="54" y="4"  width="14" height="32" rx="7" fill="#378ADD"/>
+    </svg>
+    <span class="logo-text" style="font-size:14px;">Consyst</span>
+  </div>
+  <div class="footer-text">Sitemap &amp; Design Decisions · v4.4 · March 2026 · Confidential</div>
+</div>
+
+</body>
+</html>

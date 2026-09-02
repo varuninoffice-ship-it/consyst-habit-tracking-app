@@ -1,0 +1,2095 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Consyst — Data Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FAFAF8; --surface:#FFFFFF; --chalk:#F2F1EC;
+  --border:#E8E7E2; --border-md:#D4D3CE;
+  --ink:#111111; --stone:#6B6A66; --dust:#B4B3AE;
+  --coral:#F0997B; --amber:#EF9F27; --teal:#1D9E75;
+  --blue:#378ADD; --purple:#7F77DD;
+  --teal-lt:#E1F5EE; --amber-lt:#FEF3DC;
+  --coral-lt:#FDEEE8; --blue-lt:#E6F1FB; --purple-lt:#EEEDFE;
+  --red:#E53E3E; --red-lt:#FFF5F5;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);line-height:1.7;}
+
+/* ── COVER ── */
+.cover{background:var(--surface);border-bottom:1px solid var(--border);}
+.cover-nav{padding:28px 64px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.logo{display:flex;align-items:center;gap:10px;}
+.logo-text{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;}
+.cover-meta{font-size:10px;color:var(--dust);font-family:'DM Mono',monospace;letter-spacing:1px;}
+.cover-body{padding:72px 64px 60px;max-width:960px;}
+.eyebrow{font-size:10px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:var(--teal);font-family:'DM Mono',monospace;margin-bottom:20px;}
+.cover-title{font-size:56px;font-weight:800;letter-spacing:-3px;line-height:1.05;color:var(--ink);margin-bottom:22px;}
+.cover-sub{font-size:17px;color:var(--stone);max-width:560px;line-height:1.75;margin-bottom:48px;}
+.cover-stats{display:flex;gap:48px;padding-top:36px;border-top:1px solid var(--border);}
+.cs{display:flex;flex-direction:column;gap:4px;}
+.cs-num{font-size:36px;font-weight:800;letter-spacing:-1.5px;}
+.cs-label{font-size:10px;color:var(--dust);letter-spacing:2px;text-transform:uppercase;font-family:'DM Mono',monospace;}
+.toc{padding:36px 64px;border-top:1px solid var(--border);background:var(--chalk);}
+.toc-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;margin-bottom:14px;}
+.toc-links{display:flex;flex-wrap:wrap;gap:8px;}
+.toc-link{font-size:12px;font-weight:600;color:var(--stone);text-decoration:none;padding:6px 15px;border-radius:20px;border:1px solid var(--border-md);background:var(--surface);transition:all 0.15s;}
+.toc-link:hover{border-color:var(--teal);color:var(--teal);}
+.toc-link.pending{opacity:0.45;cursor:default;}
+
+/* ── LAYOUT ── */
+.wrap{max-width:960px;margin:0 auto;padding:0 64px;}
+.doc-section{padding:72px 0;border-bottom:1px solid var(--border);}
+.doc-section:last-of-type{border-bottom:none;}
+.sh{display:flex;gap:24px;align-items:flex-start;margin-bottom:48px;}
+.sh-num{font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);letter-spacing:1px;padding-top:7px;flex-shrink:0;width:32px;}
+.sh-title{font-size:34px;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:10px;}
+.sh-intro{font-size:15px;color:var(--stone);max-width:620px;line-height:1.8;}
+.sub{margin-bottom:40px;}
+.sub:last-child{margin-bottom:0;}
+.sub-label{font-size:9px;letter-spacing:3px;text-transform:uppercase;font-weight:600;color:var(--dust);font-family:'DM Mono',monospace;margin-bottom:18px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+p.prose{font-size:15px;color:var(--stone);line-height:1.8;max-width:680px;}
+p.prose+p.prose{margin-top:14px;}
+p.prose strong{color:var(--ink);font-weight:700;}
+p.prose em{font-style:normal;color:var(--teal);font-weight:600;}
+
+/* ── CALLOUTS ── */
+.callout{padding:18px 22px;border-radius:12px;border-left:4px solid var(--teal);background:var(--teal-lt);margin:20px 0;}
+.callout p{font-size:14px;color:#085041;line-height:1.7;font-weight:500;}
+.callout.amber{border-color:var(--amber);background:var(--amber-lt);}
+.callout.amber p{color:#633806;}
+.callout.blue{border-color:var(--blue);background:var(--blue-lt);}
+.callout.blue p{color:#0C447C;}
+.callout.red{border-color:var(--red);background:var(--red-lt);}
+.callout.red p{color:#742a2a;}
+
+/* ── LAYER STATUS BADGE ── */
+.layer-badge{display:inline-flex;align-items:center;gap:6px;font-size:10px;font-weight:700;padding:4px 12px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.5px;margin-bottom:16px;}
+.layer-done{background:var(--teal-lt);color:#085041;border:1px solid var(--teal);}
+.layer-pending{background:var(--chalk);color:var(--dust);border:1px solid var(--border);}
+.layer-next{background:var(--amber-lt);color:#633806;border:1px solid var(--amber);}
+
+/* ── ENTITY CARD ── */
+.entity-grid{display:flex;flex-direction:column;gap:24px;margin:20px 0;}
+
+.entity-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.entity-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:14px;}
+.entity-accent{width:5px;align-self:stretch;flex-shrink:0;border-radius:0;}
+.entity-header-inner{flex:1;display:flex;align-items:center;gap:14px;}
+.entity-name{font-size:18px;font-weight:800;color:var(--ink);letter-spacing:-0.5px;font-family:'DM Mono',monospace;}
+.entity-desc{font-size:12px;color:var(--stone);flex:1;}
+.entity-tag{font-size:9px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.5px;white-space:nowrap;}
+
+/* ── FIELDS TABLE ── */
+.fields-table{width:100%;border-collapse:collapse;}
+.fields-table th{text-align:left;padding:9px 16px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;border-bottom:2px solid var(--border-md);font-weight:500;background:var(--chalk);}
+.fields-table td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:top;font-size:13px;}
+.fields-table tr:last-child td{border-bottom:none;}
+.fields-table tr:hover td{background:var(--chalk);}
+
+.field-name{font-family:'DM Mono',monospace;font-weight:700;color:var(--ink);font-size:12px;}
+.field-type{font-family:'DM Mono',monospace;font-size:11px;color:var(--blue);background:var(--blue-lt);padding:2px 8px;border-radius:6px;display:inline-block;white-space:nowrap;}
+.field-type.str{color:#185FA5;background:#DBEAFE;}
+.field-type.int{color:#6B21A8;background:#F3E8FF;}
+.field-type.bool{color:#065F46;background:#D1FAE5;}
+.field-type.ts{color:#92400E;background:#FEF3C7;}
+.field-type.date{color:#9D174D;background:#FCE7F3;}
+.field-type.fk{color:#1E40AF;background:#DBEAFE;}
+.field-type.json{color:#374151;background:#F3F4F6;}
+.field-type.enum{color:#6D28D9;background:#EDE9FE;}
+.field-type.float{color:#065F46;background:#D1FAE5;}
+.field-required{font-size:9px;font-weight:700;padding:2px 7px;border-radius:8px;font-family:'DM Mono',monospace;}
+.req-yes{background:var(--teal-lt);color:#085041;}
+.req-no{background:var(--chalk);color:var(--dust);}
+.field-notes{font-size:11px;color:var(--stone);line-height:1.55;}
+.field-notes em{color:var(--amber);font-style:normal;font-weight:600;}
+
+/* ── RELATIONSHIPS ── */
+.rel-table{width:100%;border-collapse:collapse;margin:20px 0;}
+.rel-table th{text-align:left;padding:9px 14px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--dust);font-family:'DM Mono',monospace;border-bottom:2px solid var(--border-md);font-weight:500;}
+.rel-table td{padding:12px 14px;border-bottom:1px solid var(--border);font-size:13px;vertical-align:middle;}
+.rel-table tr:last-child td{border-bottom:none;}
+.rel-table tr:nth-child(even) td{background:var(--chalk);}
+.rel-from{font-family:'DM Mono',monospace;font-weight:700;color:var(--ink);font-size:12px;}
+.rel-type{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap;}
+.rel-1m{background:var(--teal-lt);color:#085041;}
+.rel-mm{background:var(--purple-lt);color:#3C3489;}
+.rel-11{background:var(--blue-lt);color:#0C447C;}
+.rel-desc{font-size:11px;color:var(--stone);line-height:1.55;}
+
+/* ── FORMULA BLOCK ── */
+.formula-block{background:var(--ink);border-radius:12px;padding:20px 24px;margin:16px 0;overflow-x:auto;}
+.formula-block pre{font-family:'DM Mono',monospace;font-size:12px;color:#F5F5F3;line-height:1.8;white-space:pre-wrap;}
+.formula-block .comment{color:rgba(255,255,255,0.3);}
+.formula-block .keyword{color:var(--teal);}
+.formula-block .value{color:var(--amber);}
+.formula-block .fn{color:var(--coral);}
+
+/* ── PENDING SECTION ── */
+.pending-section{background:var(--chalk);border:2px dashed var(--border-md);border-radius:16px;padding:36px;text-align:center;margin:20px 0;}
+.pending-icon{font-size:28px;margin-bottom:12px;}
+.pending-title{font-size:16px;font-weight:800;color:var(--dust);letter-spacing:-0.3px;margin-bottom:6px;}
+.pending-sub{font-size:13px;color:var(--dust);font-family:'DM Mono',monospace;}
+
+/* ── PRINCIPLES ── */
+.principle-list{border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:20px 0;}
+.pi{display:flex;gap:18px;padding:18px 22px;border-bottom:1px solid var(--border);background:var(--surface);}
+.pi:last-child{border-bottom:none;}
+.pi:nth-child(even){background:var(--chalk);}
+.pi-n{font-size:10px;font-family:'DM Mono',monospace;color:var(--dust);flex-shrink:0;width:24px;padding-top:2px;}
+.pi-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:4px;}
+.pi-text{font-size:12px;color:var(--stone);line-height:1.65;}
+
+/* ── FOOTER ── */
+.doc-footer{padding:36px 64px;background:var(--surface);border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;}
+.footer-logo{display:flex;align-items:center;gap:8px;}
+.footer-text{font-size:10px;color:var(--dust);font-family:'DM Mono',monospace;}
+
+@media(max-width:768px){
+  .wrap,.cover-nav,.cover-body,.toc,.doc-footer{padding-left:24px;padding-right:24px;}
+  .cover-title{font-size:38px;}
+  .cover-stats{gap:28px;}
+}
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<div class="cover">
+  <div class="cover-nav">
+    <div class="logo">
+      <svg width="52" height="20" viewBox="0 0 88 36">
+        <rect x="0"  y="12" width="14" height="22" rx="7" fill="#F0997B"/>
+        <rect x="18" y="6"  width="14" height="28" rx="7" fill="#EF9F27"/>
+        <rect x="36" y="0"  width="14" height="36" rx="7" fill="#1D9E75"/>
+        <rect x="54" y="4"  width="14" height="32" rx="7" fill="#378ADD"/>
+      </svg>
+      <span class="logo-text">Consyst</span>
+    </div>
+    <div class="cover-meta">Data Model · v1.4 · Final · All layers complete · March 2026</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="eyebrow">Technical design document</div>
+    <h1 class="cover-title">Data Model</h1>
+    <p class="cover-sub">The foundation that stays. A layered, iterative definition of every entity, relationship, calculation, and constraint in the Consyst system — built incrementally and confirmed at each step before proceeding.</p>
+    <div class="cover-stats">
+      <div class="cs"><div class="cs-num" style="color:var(--teal);">7</div><div class="cs-label">Entities</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--ink);">5</div><div class="cs-label">Layers</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--teal);">5</div><div class="cs-label">Complete</div></div>
+      <div class="cs"><div class="cs-num" style="color:var(--teal);">0</div><div class="cs-label">Pending</div></div>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc-label">Layers</div>
+    <div class="toc-links">
+      <a href="#overview" class="toc-link">00 — Overview</a>
+      <a href="#layer1" class="toc-link">01 — Entities &amp; fields ✓</a>
+      <a href="#layer2" class="toc-link">02 — Relationships ✓</a>
+      <a href="#layer3" class="toc-link">03 — Business logic ✓</a>
+      <a href="#layer4" class="toc-link">04 — Edge cases ✓</a>
+      <a href="#layer5" class="toc-link">05 — Final review ✓</a>
+    </div>
+  </div>
+</div>
+
+
+<!-- 00 OVERVIEW -->
+<div class="doc-section" id="overview">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">00</div>
+      <div>
+        <div class="sh-title">Overview</div>
+        <p class="sh-intro">How this document is structured, the layered approach, and the seven entities that make up the Consyst data model.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">The layered approach</div>
+      <p class="prose">The data model is built in five layers, each confirmed before the next begins. This prevents the most common data modeling mistake — designing relationships before you fully understand the entities, or defining business logic before you know the shape of the data.</p>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n" style="color:var(--teal);font-weight:700;">L1 ✓</div><div><div class="pi-title">Entities &amp; fields</div><div class="pi-text">The things we store and what we know about each one. No relationships, no logic — just entities and their fields. Confirmed before proceeding.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--dust);">L2</div><div><div class="pi-title">Relationships</div><div class="pi-text">How entities connect. Foreign keys, cardinality (one-to-many, many-to-many). Where ownership lives. Decisions that seem small but have large downstream implications.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--dust);">L3</div><div><div class="pi-title">Business logic &amp; calculations</div><div class="pi-text">Week score formula. Streak calculation. Grade thresholds. Consistency percentage. These are computed, not stored — but they must be defined precisely.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--dust);">L4</div><div><div class="pi-title">Edge cases &amp; constraints</div><div class="pi-text">What happens when a habit is archived mid-month? When a goal changes mid-week? When the user changes timezone? Stress-testing the model.</div></div></div>
+        <div class="pi"><div class="pi-n" style="color:var(--dust);">L5</div><div><div class="pi-title">Final review &amp; documentation</div><div class="pi-text">Pull everything together. Check for gaps. Produce the clean, complete model ready for handoff to development.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">The seven entities</div>
+      <p class="prose">Derived directly from the design — every screen, every widget, every data point shown to the user maps back to one of these seven entities.</p>
+
+      <table class="rel-table" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>Entity</th>
+            <th>What it represents</th>
+            <th>Driven by</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rel-from">User</span></td>
+            <td style="font-size:12px;color:var(--stone);">The person using Consyst — identity, name, account dates</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Sign in page · Settings · sidebar user block</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">Habit</span></td>
+            <td style="font-size:12px;color:var(--stone);">A single trackable behaviour the user has configured</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Habits screen · all check-in grids</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">HabitLog</span></td>
+            <td style="font-size:12px;color:var(--stone);">A single check-in — one habit, one day, done or not</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Now check-in · Pulse grid · Story heatmap</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">WeeklyGoal</span></td>
+            <td style="font-size:12px;color:var(--stone);">The target frequency for a habit in a given week</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Pulse progress bars · grade calculation</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">DayNote</span></td>
+            <td style="font-size:12px;color:var(--stone);">A short optional note the user writes for a specific day</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Today day note · Reflect archive</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">Reflection</span></td>
+            <td style="font-size:12px;color:var(--stone);">A structured monthly entry — wins, gaps, journal, intentions</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Reflect screen · all four cards</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">Milestone</span></td>
+            <td style="font-size:12px;color:var(--stone);">A significant moment — auto-detected or manually added</td>
+            <td style="font-size:11px;color:var(--dust);font-family:'DM Mono',monospace;">Reflect milestones · Story life timeline</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="margin-top:20px;">
+        <p>These seven entities cover everything shown on every screen. If a data point appears in the UI, it either comes directly from one of these entities or is calculated from them. No screen requires data that cannot be derived from this set.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- LAYER 1 — ENTITIES & FIELDS -->
+<div class="doc-section" id="layer1">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">01</div>
+      <div>
+        <div class="sh-title">Layer 1 — Entities &amp; Fields</div>
+        <p class="sh-intro">Every entity the system stores, and every field within each entity. No relationships, no calculated values — just the raw data model at the field level.</p>
+      </div>
+    </div>
+
+    <div class="layer-badge layer-done">✓ Complete · confirmed March 2026</div>
+
+    <div class="sub">
+      <div class="sub-label">Conventions used in this layer</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">C1</div><div><div class="pi-title">All entities have id, created_at, updated_at</div><div class="pi-text">Every entity has a primary key (id), a creation timestamp (created_at), and a last-updated timestamp (updated_at). These are not listed individually in each entity — they are assumed present on all tables.</div></div></div>
+        <div class="pi"><div class="pi-n">C2</div><div><div class="pi-title">snake_case for all field names</div><div class="pi-text">All field names use snake_case convention (e.g. weekly_goal, created_at, habit_id). This is standard for SQL databases and most ORMs.</div></div></div>
+        <div class="pi"><div class="pi-n">C3</div><div><div class="pi-title">Soft deletes via archived_at</div><div class="pi-text">Nothing is hard-deleted. Habits use archived_at to mark deactivation. This preserves historical data for Story and the life timeline. A null archived_at means the record is active.</div></div></div>
+        <div class="pi"><div class="pi-n">C4</div><div><div class="pi-title">Dates are stored as DATE, timestamps as TIMESTAMPTZ</div><div class="pi-text">A habit log is associated with a calendar date (DATE), not a timestamp — because "did I exercise on Monday?" is a date question, not a time question. Authentication events and created_at fields use TIMESTAMPTZ (timestamp with timezone).</div></div></div>
+      </div>
+    </div>
+
+    <!-- ENTITY 1: USER -->
+    <div class="sub">
+      <div class="sub-label">Entity 1 of 7 — User</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--teal);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">users</div>
+              <div class="entity-desc">The person using Consyst. One row per account. The root of everything — all other entities belong to a user.</div>
+              <div class="entity-tag" style="background:var(--teal-lt);color:#085041;">Core</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr>
+                <th style="width:160px;">Field</th>
+                <th style="width:130px;">Type</th>
+                <th style="width:70px;">Required</th>
+                <th>Notes</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key. UUID preferred over integer for security — no sequential IDs exposed in URLs.</td></tr>
+              <tr><td class="field-name">name</td><td><span class="field-type str">VARCHAR(100)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The user's preferred name — used throughout the app in greetings, milestones, and the sign in page left panel. Not a username — just the name they want to be called.</td></tr>
+              <tr><td class="field-name">email</td><td><span class="field-type str">VARCHAR(255)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Unique. Used for sign in. Lowercase stored. <em>Must be unique across all users.</em></td></tr>
+              <tr><td class="field-name">password_hash</td><td><span class="field-type str">VARCHAR(255)</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Nullable — null if the user signed up via Google OAuth. Never store plain text passwords. bcrypt or argon2 hash only.</td></tr>
+              <tr><td class="field-name">google_id</td><td><span class="field-type str">VARCHAR(255)</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Nullable — only present if the user authenticated via Google. Unique when present.</td></tr>
+              <tr><td class="field-name">avatar_url</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Optional profile image URL. If null, the app uses the Pulse Stack logo avatar shown in the sidebar. Pulled from Google if OAuth sign-up.</td></tr>
+              <tr><td class="field-name">system_started_at</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The date the user began using Consyst — their "Day 1". Set on first sign-in. Used to calculate "day 29", "day 1" labels throughout the app, and anchors the life timeline.</td></tr>
+              <tr><td class="field-name">timezone</td><td><span class="field-type str">VARCHAR(50)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">IANA timezone string (e.g. "America/New_York"). Critical for determining which calendar date a check-in belongs to. Detected on sign-up, adjustable in Settings. <em>Edge cases in Layer 4.</em></td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Account creation timestamp.</td></tr>
+              <tr><td class="field-name">updated_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Last profile update.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY 2: HABIT -->
+    <div class="sub">
+      <div class="sub-label">Entity 2 of 7 — Habit</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--purple);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">habits</div>
+              <div class="entity-desc">A single trackable behaviour configured by the user. The building block of the entire system — every check-in, every score, every streak is anchored here.</div>
+              <div class="entity-tag" style="background:var(--purple-lt);color:#3C3489;">Core</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Foreign key to the owning user. Every habit belongs to exactly one user.</td></tr>
+              <tr><td class="field-name">name</td><td><span class="field-type str">VARCHAR(100)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The habit name as the user typed it — "Exercise", "Meditation", "Sleep 7+". Displayed throughout the app exactly as entered.</td></tr>
+              <tr><td class="field-name">icon</td><td><span class="field-type str">VARCHAR(10)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">A single emoji character selected from the icon grid in the Habits modal. Stored as the raw emoji string (e.g. "🏋️"). Default: "⭐" if none selected.</td></tr>
+              <tr><td class="field-name">category</td><td><span class="field-type enum">ENUM</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">One of: physical, mental, growth, recovery, connection, creative, spiritual, other. Shown as the sub-label in the Habits table. Used for potential future filtering in Story.</td></tr>
+              <tr><td class="field-name">description</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Optional free-text description the user adds in the Habits modal — their personal definition of what counts. Not displayed in the main UI, only in the edit modal.</td></tr>
+              <tr><td class="field-name">default_weekly_goal</td><td><span class="field-type int">INTEGER</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The default number of days per week this habit should be completed (1–7). Set via the day-pip selector. This is the baseline — actual weekly targets are stored in WeeklyGoal. <em>Why both? See Layer 2.</em></td></tr>
+              <tr><td class="field-name">sort_order</td><td><span class="field-type int">INTEGER</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Display order in the Habits table and check-in lists. Updated when the user drags to reorder. Lower number = higher position.</td></tr>
+              <tr><td class="field-name">archived_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Null = active habit. Non-null = archived at this timestamp. Archived habits are excluded from new check-ins but their historical HabitLog records are preserved. Used in Story heatmap and life timeline.</td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When the habit was created — used in the system history log in Settings.</td></tr>
+              <tr><td class="field-name">updated_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Last edit timestamp.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY 3: HABIT LOG -->
+    <div class="sub">
+      <div class="sub-label">Entity 3 of 7 — HabitLog</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--amber);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">habit_logs</div>
+              <div class="entity-desc">A single check-in record — one habit, one calendar date, completed or not. The most-written table in the system. Every checkbox tap creates or updates a row here.</div>
+              <div class="entity-tag" style="background:var(--amber-lt);color:#633806;">High volume</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">habit_id</td><td><span class="field-type fk">UUID → habits</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Which habit was checked in.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Denormalised for query performance — avoids joining through habits to get to users on every read. <em>Trade-off discussed in Layer 2.</em></td></tr>
+              <tr><td class="field-name">log_date</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The calendar date this check-in belongs to, in the user's local timezone. Stored as DATE not TIMESTAMP — "did I exercise on Monday?" is a date question. <em>Unique constraint: (habit_id, log_date) — one log per habit per day.</em></td></tr>
+              <tr><td class="field-name">completed</td><td><span class="field-type bool">BOOLEAN</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">True = checked off. False = explicitly unchecked. <em>Why store false? </em>Because we need to distinguish "user unchecked this" from "user never touched this date". Untouched dates have no row; false means the user actively unchecked. Default: true on creation (a tap creates a completed log).</td></tr>
+              <tr><td class="field-name">note</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Reserved for future use — a per-habit note on a specific day (e.g. "ran 5k instead of gym"). Not shown in current design but stored here to avoid a schema migration later.</td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When the check-in was recorded.</td></tr>
+              <tr><td class="field-name">updated_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When the check-in was last modified (e.g. unchecked).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY 4: WEEKLY GOAL -->
+    <div class="sub">
+      <div class="sub-label">Entity 4 of 7 — WeeklyGoal</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--coral);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">weekly_goals</div>
+              <div class="entity-desc">The target frequency for a habit in a specific week. Tracks when a user changes their goal — preserving historical accuracy so past scores are never retroactively altered.</div>
+              <div class="entity-tag" style="background:var(--coral-lt);color:#712B13;">History-preserving</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">habit_id</td><td><span class="field-type fk">UUID → habits</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Which habit this goal applies to.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Denormalised for query performance.</td></tr>
+              <tr><td class="field-name">target_days</td><td><span class="field-type int">INTEGER</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Number of days per week this habit should be completed. 1–7. Set via the day-pip selector in Habits or Settings.</td></tr>
+              <tr><td class="field-name">week_start_date</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The Monday of the week this goal takes effect. Goals are applied week-by-week. When the user changes a goal, a new row is inserted with the next Monday's date — the old row stays intact for historical scoring. <em>This is the key design decision for this entity — see Layer 2.</em></td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When this goal version was created.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="callout amber" style="margin-top:12px;">
+        <p>WeeklyGoal is the most important design decision in Layer 1. Instead of a single goal field on the Habit entity, we store a history of goals with effective dates. This means if a user drops their Exercise goal from 5× to 3× in March, their February scores are not retroactively recalculated. History is preserved exactly as it happened.</p>
+      </div>
+    </div>
+
+    <!-- ENTITY 5: DAY NOTE -->
+    <div class="sub">
+      <div class="sub-label">Entity 5 of 7 — DayNote</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--blue);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">day_notes</div>
+              <div class="entity-desc">A short optional note the user writes for a specific day — the "day note" field in the Today section and the Reflect archive. One note per user per day maximum.</div>
+              <div class="entity-tag" style="background:var(--blue-lt);color:#0C447C;">Journal</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The owning user.</td></tr>
+              <tr><td class="field-name">note_date</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The calendar date this note belongs to, in the user's local timezone. <em>Unique constraint: (user_id, note_date) — one note per day per user.</em></td></tr>
+              <tr><td class="field-name">content</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The note text. No formatting, plain text. Max 1000 characters enforced at the UI level (500 shown in design, leaving room). Stored without limit at the DB level.</td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When the note was first saved.</td></tr>
+              <tr><td class="field-name">updated_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When the note was last edited — shown as "last edited" in the archive.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY 6: REFLECTION -->
+    <div class="sub">
+      <div class="sub-label">Entity 6 of 7 — Reflection</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--blue);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">reflections</div>
+              <div class="entity-desc">A structured monthly entry in the Reflect section — monthly wins, gaps and risks, free-form journal notes, and next month intentions. One reflection per user per month.</div>
+              <div class="entity-tag" style="background:var(--blue-lt);color:#0C447C;">Journal</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The owning user.</td></tr>
+              <tr><td class="field-name">reflection_month</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Stored as the first day of the month (e.g. 2026-03-01 for March 2026). <em>Unique constraint: (user_id, reflection_month).</em> Using a DATE rather than year+month integers keeps it a single queryable field.</td></tr>
+              <tr><td class="field-name">wins</td><td><span class="field-type json">JSONB</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Array of win strings — e.g. ["14-day streak on Exercise", "First A-grade week"]. JSONB allows flexible ordering and future addition of metadata per win (e.g. date added). Null if no wins recorded.</td></tr>
+              <tr><td class="field-name">gaps</td><td><span class="field-type json">JSONB</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Array of gap/risk strings. Same structure as wins. Null if none recorded.</td></tr>
+              <tr><td class="field-name">journal</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Free-form journal entry — the Notes &amp; Journal textarea in Reflect. Plain text, no character limit at the DB level.</td></tr>
+              <tr><td class="field-name">intentions</td><td><span class="field-type json">JSONB</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Array of intention strings for the next month — e.g. ["Move Reading to lunchtime", "Protect Sleep 7+ after strong weeks"]. Same JSONB structure as wins and gaps.</td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When this reflection was first created.</td></tr>
+              <tr><td class="field-name">updated_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Last update — any of the four fields being saved triggers this.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTITY 7: MILESTONE -->
+    <div class="sub">
+      <div class="sub-label">Entity 7 of 7 — Milestone</div>
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--amber);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">milestones</div>
+              <div class="entity-desc">A significant moment in the user's journey — either auto-detected by the system (streak records, first A-grade week) or manually added by the user. Shown in the Reflect section and the Story life timeline.</div>
+              <div class="entity-tag" style="background:var(--amber-lt);color:#633806;">Auto + Manual</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td class="field-name">id</td><td><span class="field-type str">UUID</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Primary key.</td></tr>
+              <tr><td class="field-name">user_id</td><td><span class="field-type fk">UUID → users</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The owning user.</td></tr>
+              <tr><td class="field-name">habit_id</td><td><span class="field-type fk">UUID → habits</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Nullable — only present if this milestone relates to a specific habit (e.g. a streak on Exercise). Null for system-wide milestones (first A-grade week, day 1).</td></tr>
+              <tr><td class="field-name">type</td><td><span class="field-type enum">ENUM</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">One of: streak_record, first_perfect_day, first_a_week, habit_added, habit_archived, personal_best, manual. Drives the icon and border colour in the Reflect milestones list.</td></tr>
+              <tr><td class="field-name">title</td><td><span class="field-type str">VARCHAR(200)</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">Short description — e.g. "14-day streak — Exercise &amp; Meditation" or "First A-grade week". Auto-generated for system milestones, user-written for manual ones.</td></tr>
+              <tr><td class="field-name">body</td><td><span class="field-type str">TEXT</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Optional longer description — shown below the title in the milestone card. Auto-generated for system milestones (e.g. "26 of 29 targets completed"). User-written for manual entries.</td></tr>
+              <tr><td class="field-name">milestone_date</td><td><span class="field-type date">DATE</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">The calendar date this milestone occurred. Used to sort the life timeline and display the date in the milestone card.</td></tr>
+              <tr><td class="field-name">is_manual</td><td><span class="field-type bool">BOOLEAN</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">True = user added this manually. False = system auto-detected. Drives the "Personal note" vs "Auto-detected" badge in the Reflect milestone list. Default: false.</td></tr>
+              <tr><td class="field-name">metadata</td><td><span class="field-type json">JSONB</span></td><td><span class="field-required req-no">No</span></td><td class="field-notes">Flexible store for milestone-specific data — e.g. for a streak_record: {"streak_length": 14, "habit_name": "Exercise"}. Allows future milestone types without schema changes.</td></tr>
+              <tr><td class="field-name">created_at</td><td><span class="field-type ts">TIMESTAMPTZ</span></td><td><span class="field-required req-yes">Yes</span></td><td class="field-notes">When this milestone was recorded.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- LAYER 1 SUMMARY -->
+    <div class="sub">
+      <div class="sub-label">Layer 1 — field count summary</div>
+      <table class="rel-table">
+        <thead>
+          <tr><th>Entity</th><th>Table name</th><th>Fields</th><th>Key design note</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="rel-from">User</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">users</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">10</td><td style="font-size:11px;color:var(--stone);">system_started_at anchors all "day N" calculations and the life timeline</td></tr>
+          <tr><td><span class="rel-from">Habit</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">habits</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">11</td><td style="font-size:11px;color:var(--stone);">archived_at (not deleted) preserves all historical data</td></tr>
+          <tr><td><span class="rel-from">HabitLog</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">habit_logs</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">8</td><td style="font-size:11px;color:var(--stone);">unique(habit_id, log_date) — one log per habit per day; completed=false is explicit uncheck</td></tr>
+          <tr><td><span class="rel-from">WeeklyGoal</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">weekly_goals</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">6</td><td style="font-size:11px;color:var(--stone);">week_start_date makes goals versioned — history is never retroactively altered</td></tr>
+          <tr><td><span class="rel-from">DayNote</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">day_notes</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">6</td><td style="font-size:11px;color:var(--stone);">unique(user_id, note_date) — one note per user per day</td></tr>
+          <tr><td><span class="rel-from">Reflection</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">reflections</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">9</td><td style="font-size:11px;color:var(--stone);">JSONB for wins/gaps/intentions — flexible arrays without separate junction tables</td></tr>
+          <tr><td><span class="rel-from">Milestone</span></td><td style="font-family:'DM Mono',monospace;font-size:11px;color:var(--stone);">milestones</td><td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">11</td><td style="font-size:11px;color:var(--stone);">type ENUM + metadata JSONB — auto and manual milestones in one table</td></tr>
+          <tr style="background:var(--chalk);">
+            <td colspan="2" style="font-weight:700;color:var(--ink);">Total</td>
+            <td style="font-weight:800;font-size:18px;color:var(--ink);font-family:'DM Mono',monospace;">61</td>
+            <td style="font-size:11px;color:var(--stone);">Across 7 tables · excluding universal id, created_at, updated_at on each</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="margin-top:20px;">
+        <p>Layer 1 is complete. The next step is Layer 2 — Relationships. Before proceeding, confirm: are there any entities missing? Any fields that seem wrong or incomplete? Any naming that should change? Corrections at this stage are cheap. Corrections after Layer 2 are more expensive.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- LAYER 2 PLACEHOLDER -->
+<div class="doc-section" id="layer2">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">02</div>
+      <div>
+        <div class="sh-title">Layer 2 — Relationships</div>
+        <p class="sh-intro">How the seven entities connect. Foreign keys, cardinality, ownership, cascade behaviour, and the design decisions hiding inside the relationships.</p>
+      </div>
+    </div>
+
+    <div class="layer-badge layer-done">✓ Complete · confirmed March 2026</div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship map — all connections at a glance</div>
+      <p class="prose">Every relationship in the system, with cardinality and the key question each one answers.</p>
+
+      <table class="rel-table" style="margin-top:16px;">
+        <thead>
+          <tr>
+            <th>From</th>
+            <th>To</th>
+            <th style="width:100px;">Type</th>
+            <th>Key question it answers</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">habits</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">Which habits does this user track?</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">habits</span></td>
+            <td><span class="rel-from">habit_logs</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">What check-ins exist for this habit across all dates?</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">habit_logs</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">All check-ins for this user across all habits — used for dashboard and export queries.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">habits</span></td>
+            <td><span class="rel-from">weekly_goals</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">What was the target for this habit in a given week? (versioned history)</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">weekly_goals</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">All goal history for this user — used for Settings system history log.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">day_notes</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">All day notes for this user — shown in the Reflect archive.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">reflections</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">One reflection per month per user — the Reflect section's four-card structure.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td><span class="rel-from">milestones</span></td>
+            <td><span class="rel-type rel-1m">1 → many</span></td>
+            <td class="rel-desc">All milestones in this user's life timeline.</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">habits</span></td>
+            <td><span class="rel-from">milestones</span></td>
+            <td><span class="rel-type rel-1m">1 → many (optional)</span></td>
+            <td class="rel-desc">Which habit does this milestone relate to? Nullable — some milestones are habit-agnostic.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 1 — users → habits</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">habits.user_id → users.id</div><div class="pi-text">Every habit belongs to exactly one user. A habit without a user cannot exist.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On user delete → cascade delete habits</div><div class="pi-text">If a user deletes their account, all their habits are deleted. This triggers cascade deletes down the chain — habit_logs, weekly_goals, and habit-linked milestones all go with the habits. This is the correct behaviour: the user has explicitly chosen to erase everything.</div></div></div>
+        <div class="pi"><div class="pi-n">📌</div><div><div class="pi-title">Archived habits stay — they are not deleted</div><div class="pi-text">When a user archives a habit in the Habits screen, archived_at is set. The habit row stays. All its habit_logs stay. All its weekly_goals stay. The archived habit continues to appear in Story historical data and the life timeline. Only the user deleting their account removes it.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 2 — habits → habit_logs</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">habit_logs.habit_id → habits.id</div><div class="pi-text">Every log entry belongs to exactly one habit. A log without a habit cannot exist.</div></div></div>
+        <div class="pi"><div class="pi-n">🔑</div><div><div class="pi-title">Unique constraint: (habit_id, log_date)</div><div class="pi-text">One log per habit per calendar day. Enforced at the database level — not just the application level. This prevents duplicate check-ins if the user taps a checkbox twice quickly or if two requests race.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On habit delete → cascade delete logs</div><div class="pi-text">Only happens if the user deletes their account (which cascades from users → habits → habit_logs). Normal archiving does NOT delete logs — it just prevents new ones being created.</div></div></div>
+        <div class="pi"><div class="pi-n">📌</div><div><div class="pi-title">Logs for archived habits are read-only history</div><div class="pi-text">Once a habit is archived, no new habit_logs can be created for it. Existing logs are preserved and remain queryable for Story, heatmaps, and exports. The application layer enforces this — archived habits do not appear in the check-in UI.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 3 — users → habit_logs (denormalised)</div>
+      <p class="prose">habit_logs carries both habit_id and user_id. The user could be reached via habit_logs → habits → users, but we store user_id directly on habit_logs. This is a deliberate denormalisation.</p>
+      <div class="callout amber">
+        <p>Why denormalise? The Now dashboard, the Pulse weekly grid, the Story heatmap, and the export feature all need to query "all check-ins for this user across a date range" — a very common, very frequent query. Without denormalisation it requires a JOIN through habits every time. With user_id on habit_logs, it's a direct index lookup on (user_id, log_date). The trade-off: we must ensure habit_logs.user_id always equals the user_id of the parent habit. This is enforced by only ever writing habit_logs through the application layer, never directly — and by a database trigger or check constraint if the team prefers belt-and-suspenders.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 4 — habits → weekly_goals (versioned)</div>
+      <p class="prose">This is the most query-critical relationship in the model. One habit can have many weekly_goals over its lifetime — one row per change. The question "what was the target for Exercise in Week 11?" is answered by finding the most recent weekly_goal row for that habit where week_start_date &lt;= the Monday of Week 11.</p>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">weekly_goals.habit_id → habits.id</div><div class="pi-text">Every goal version belongs to a specific habit.</div></div></div>
+        <div class="pi"><div class="pi-n">🔑</div><div><div class="pi-title">Unique constraint: (habit_id, week_start_date)</div><div class="pi-text">One goal record per habit per week start date. Prevents duplicate entries for the same week.</div></div></div>
+        <div class="pi"><div class="pi-n">📋</div><div><div class="pi-title">How to find the active goal for a given week</div><div class="pi-text">Query: SELECT target_days FROM weekly_goals WHERE habit_id = ? AND week_start_date &lt;= [target_monday] ORDER BY week_start_date DESC LIMIT 1. This returns the most recent goal that was in effect on or before the week in question. If no row exists, fall back to habits.default_weekly_goal.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">Goal changes take effect the following Monday</div><div class="pi-text">When a user changes a goal, a new weekly_goals row is inserted with week_start_date = next Monday. The current week is never mid-stream altered — the design decision from Layer 1 is enforced here at the relationship level. The Settings screen shows "changes take effect from the start of next week."</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On habit delete → cascade delete weekly_goals</div><div class="pi-text">Only on full account deletion. Archiving preserves weekly_goals for historical score calculations.</div></div></div>
+      </div>
+
+      <div class="callout">
+        <p>The versioned goal design means the week score for any past week can always be recalculated accurately — even years later. The denominator (total possible check-ins) is derived from the goal that was active that week, not the current goal. This is what makes the Story consistency trend trustworthy over time.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 5 — users → day_notes</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">day_notes.user_id → users.id</div><div class="pi-text">Every day note belongs to exactly one user.</div></div></div>
+        <div class="pi"><div class="pi-n">🔑</div><div><div class="pi-title">Unique constraint: (user_id, note_date)</div><div class="pi-text">One note per user per calendar day. The UI allows editing the same note — saving overwrites the existing row (UPDATE), not inserts a new one (INSERT).</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On user delete → cascade delete day_notes</div><div class="pi-text">Day notes are personal data — they go with the user on account deletion.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 6 — users → reflections</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">reflections.user_id → users.id</div><div class="pi-text">Every reflection belongs to exactly one user.</div></div></div>
+        <div class="pi"><div class="pi-n">🔑</div><div><div class="pi-title">Unique constraint: (user_id, reflection_month)</div><div class="pi-text">One reflection record per user per month. The four cards in the Reflect section (wins, gaps, journal, intentions) are four fields on the same row — not four separate records. Saving any card updates the single reflection row for that month.</div></div></div>
+        <div class="pi"><div class="pi-n">📋</div><div><div class="pi-title">Upsert pattern — create if not exists, update if exists</div><div class="pi-text">When the user saves anything in Reflect for March, the application does: INSERT INTO reflections (...) ON CONFLICT (user_id, reflection_month) DO UPDATE SET [field] = [value], updated_at = NOW(). This handles both the first save and subsequent edits cleanly without needing to check for existence first.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On user delete → cascade delete reflections</div><div class="pi-text">Personal journal data — gone on account deletion.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Relationship 7 — users → milestones and habits → milestones</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">milestones.user_id → users.id (required)</div><div class="pi-text">Every milestone belongs to a user. Always populated.</div></div></div>
+        <div class="pi"><div class="pi-n">FK</div><div><div class="pi-title">milestones.habit_id → habits.id (optional)</div><div class="pi-text">Nullable. A streak milestone references the specific habit. A "first A-grade week" or "Day 1" milestone is system-wide — habit_id is null.</div></div></div>
+        <div class="pi"><div class="pi-n">📌</div><div><div class="pi-title">On habit archive → milestones are NOT deleted</div><div class="pi-text">A milestone is a historical record. If the user archives Exercise, their "14-day streak on Exercise" milestone remains intact in the timeline. The milestone's habit_id still points to the archived habit row — and because we soft-delete (archive, not delete), the join still resolves. The application can show the habit name from the archived record.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On habit hard delete (account deletion) → SET NULL on milestones.habit_id</div><div class="pi-text">If a user deletes their account and the habit rows are cascade-deleted, milestones.habit_id is SET NULL rather than cascade-deleting the milestones themselves. This is the one case where we prefer SET NULL over CASCADE — because milestones belong to the user, not the habit. The milestone survives; it just loses its habit reference.</div></div></div>
+        <div class="pi"><div class="pi-n">⚡</div><div><div class="pi-title">On user delete → cascade delete milestones</div><div class="pi-text">The user is gone — all their milestones go with them.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Cascade behaviour — full summary</div>
+      <table class="rel-table">
+        <thead>
+          <tr><th>Action</th><th>Affected entity</th><th>Behaviour</th><th>Reason</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">habits</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Habits belong to the user — gone with them</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">habit_logs</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Via habits cascade, or direct user_id cascade</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">weekly_goals</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Via habits cascade</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">day_notes</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Personal data — gone with the user</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">reflections</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Personal data — gone with the user</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">User deleted</td><td><span class="rel-from">milestones</span></td><td><span class="rel-type rel-1m">CASCADE DELETE</span></td><td class="rel-desc">Milestones belong to the user</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">Habit archived</td><td><span class="rel-from">habit_logs</span></td><td><span class="rel-type rel-11">NO ACTION</span></td><td class="rel-desc">Logs are preserved as historical data</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">Habit archived</td><td><span class="rel-from">weekly_goals</span></td><td><span class="rel-type rel-11">NO ACTION</span></td><td class="rel-desc">Goals preserved for historical score recalculation</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">Habit archived</td><td><span class="rel-from">milestones</span></td><td><span class="rel-type rel-11">NO ACTION</span></td><td class="rel-desc">Milestone is a historical record — survives archiving</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-size:11px;font-weight:700;">Habit hard deleted*</td><td><span class="rel-from">milestones.habit_id</span></td><td><span class="rel-type rel-mm">SET NULL</span></td><td class="rel-desc">Milestone survives, loses habit reference. *Only on account deletion.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Entity relationship diagram — textual</div>
+      <div class="formula-block">
+        <pre><span class="comment">-- Consyst entity relationships --</span>
+
+<span class="keyword">users</span>
+  │
+  ├── <span class="fn">1:many</span> ──→ <span class="keyword">habits</span>            (user_id FK, CASCADE on user delete)
+  │              │
+  │              ├── <span class="fn">1:many</span> ──→ <span class="keyword">habit_logs</span>     (habit_id FK + user_id denorm)
+  │              │                               UNIQUE(habit_id, log_date)
+  │              │
+  │              ├── <span class="fn">1:many</span> ──→ <span class="keyword">weekly_goals</span>   (habit_id FK + user_id denorm)
+  │              │                               UNIQUE(habit_id, week_start_date)
+  │              │
+  │              └── <span class="fn">1:many</span> ──→ <span class="keyword">milestones</span>     (habit_id FK nullable, SET NULL on habit delete)
+  │
+  ├── <span class="fn">1:many</span> ──→ <span class="keyword">day_notes</span>          (user_id FK, CASCADE on user delete)
+  │                               UNIQUE(user_id, note_date)
+  │
+  ├── <span class="fn">1:many</span> ──→ <span class="keyword">reflections</span>        (user_id FK, CASCADE on user delete)
+  │                               UNIQUE(user_id, reflection_month)
+  │
+  └── <span class="fn">1:many</span> ──→ <span class="keyword">milestones</span>         (user_id FK, CASCADE on user delete)</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Key indexes — what to index for performance</div>
+      <p class="prose">These are the queries that run most frequently and must be fast. Each one needs a database index.</p>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">IDX1</div><div><div class="pi-title">habit_logs (user_id, log_date)</div><div class="pi-text">The most frequent query in the app: "all check-ins for this user in this date range." Powers Now, Pulse, Story, and exports. Composite index on (user_id, log_date DESC).</div></div></div>
+        <div class="pi"><div class="pi-n">IDX2</div><div><div class="pi-title">habit_logs (habit_id, log_date)</div><div class="pi-text">Streak calculation and per-habit history. Composite index on (habit_id, log_date DESC).</div></div></div>
+        <div class="pi"><div class="pi-n">IDX3</div><div><div class="pi-title">weekly_goals (habit_id, week_start_date)</div><div class="pi-text">Finding the active goal for any given week. Composite index on (habit_id, week_start_date DESC).</div></div></div>
+        <div class="pi"><div class="pi-n">IDX4</div><div><div class="pi-title">habits (user_id, archived_at)</div><div class="pi-text">Loading active habits for the check-in list and Habits screen. Index on (user_id) with partial index WHERE archived_at IS NULL for active-only queries.</div></div></div>
+        <div class="pi"><div class="pi-n">IDX5</div><div><div class="pi-title">milestones (user_id, milestone_date)</div><div class="pi-text">Life timeline ordered by date. Composite index on (user_id, milestone_date DESC).</div></div></div>
+        <div class="pi"><div class="pi-n">IDX6</div><div><div class="pi-title">day_notes (user_id, note_date)</div><div class="pi-text">Loading notes for the Reflect archive, ordered by date. Composite index on (user_id, note_date DESC).</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Layer 2 — relationship design decisions</div>
+      <div class="callout">
+        <p>Layer 2 is complete. The key decisions: (1) denormalised user_id on habit_logs and weekly_goals for query performance, (2) versioned weekly_goals with week_start_date ensures historical scores are never retroactively altered, (3) milestones use SET NULL on habit deletion rather than CASCADE — a milestone outlives the habit it referenced, (4) archiving a habit preserves all downstream data. Before proceeding to Layer 3, confirm: does the cascade behaviour match your expectations? Are there any relationships that feel wrong?</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- LAYER 3 — BUSINESS LOGIC -->
+<div class="doc-section" id="layer3">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">03</div>
+      <div>
+        <div class="sh-title">Layer 3 — Business Logic</div>
+        <p class="sh-intro">Every calculation the system performs. These are not stored values — they are computed on demand from the raw data in Layers 1 and 2. Defined precisely so any developer can implement them identically.</p>
+      </div>
+    </div>
+
+    <div class="layer-badge layer-done">✓ Complete · confirmed March 2026</div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 1 — Today's progress</div>
+      <p class="prose">Shown on the Now dashboard score card and the top bar streak pill. The simplest calculation in the system.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Today's progress --</span>
+
+<span class="keyword">today_completed</span> =
+  COUNT of habit_logs
+  WHERE user_id = :user_id
+    AND log_date = :today          <span class="comment">-- user's local date</span>
+    AND completed = true
+
+<span class="keyword">today_total</span> =
+  COUNT of habits
+  WHERE user_id = :user_id
+    AND archived_at IS NULL        <span class="comment">-- active habits only</span>
+
+<span class="keyword">today_progress</span> = today_completed / today_total
+
+<span class="comment">-- Display: "2/5" (fraction, not percentage)</span>
+<span class="comment">-- If today_total = 0 (no habits): show empty state, not 0/0</span></pre>
+      </div>
+
+      <div class="callout">
+        <p>Today's progress is a count of <em>active habits completed today</em> — it is not weighted by each habit's weekly goal. If you have 5 habits and complete 2, the score is 2/5 regardless of whether those habits had a goal of 7× or 1×. This matches exactly what the Now check-in widget shows.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 2 — Week score</div>
+      <p class="prose">The core metric of the app. Shown on Now, Pulse score cards, Story monthly summary, and used as the basis for the grade. This is where the versioned weekly_goals table earns its complexity.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Week score for a given week (identified by its Monday date) --</span>
+
+<span class="comment">-- Step 1: Get active habits for this user --</span>
+<span class="keyword">active_habits</span> = habits WHERE user_id = :user_id AND (
+  archived_at IS NULL                          <span class="comment">-- currently active</span>
+  OR archived_at > :week_start_date            <span class="comment">-- archived after this week started</span>
+)
+<span class="comment">-- Only include habits that existed during this week</span>
+<span class="comment">-- A habit created after this week ends is excluded</span>
+<span class="comment">-- A habit archived during this week is still included (pro-rated in edge cases)</span>
+
+<span class="comment">-- Step 2: For each habit, find the active weekly goal --</span>
+<span class="keyword">get_goal</span>(habit_id, week_start_date):
+  SELECT target_days FROM weekly_goals
+  WHERE habit_id = :habit_id
+    AND week_start_date &lt;= :week_start_date
+  ORDER BY week_start_date DESC
+  LIMIT 1
+  <span class="comment">-- Fallback if no weekly_goal row exists yet:</span>
+  <span class="comment">-- use habits.default_weekly_goal</span>
+
+<span class="comment">-- Step 3: Build the denominator (total possible completions) --</span>
+<span class="keyword">week_target</span> =
+  SUM of get_goal(habit.id, week_start_date)
+  FOR EACH habit IN active_habits
+
+<span class="comment">-- Step 4: Build the numerator (actual completions) --</span>
+<span class="keyword">week_completed</span> =
+  COUNT of habit_logs
+  WHERE user_id = :user_id
+    AND log_date BETWEEN :week_start_date AND :week_end_date
+    AND completed = true
+    AND habit_id IN (active_habits.ids)
+
+<span class="comment">-- Step 5: Calculate the score --</span>
+<span class="keyword">week_score</span> = ROUND((week_completed / week_target) * 100, 1)
+
+<span class="comment">-- Edge: week_target = 0 → return null (no habits configured)</span>
+<span class="comment">-- Score can exceed 100% if user completes more than their target</span>
+<span class="comment">-- Cap display at 100% but store raw value for "133%" achievements in Now</span>
+<span class="comment">-- Week boundaries: Monday 00:00:00 → Sunday 23:59:59 in user's timezone</span></pre>
+      </div>
+
+      <div class="callout amber">
+        <p>The week score can technically exceed 100% — if a user's Exercise goal is 3× but they complete it 4 times, that habit contributes 4/3 = 133% to their score. The design shows this as "133%" in the Top Performer widget on Now. The overall week score is capped at 100% for display purposes in the grade card and score card — but the raw value is preserved for the "exceeded goal" display in the Pulse habit table.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 3 — Weekly grade</div>
+      <p class="prose">Applied to the week score to produce the A/B/C grade shown on the Pulse grade card and in the Story monthly summary badges.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Weekly grade thresholds --</span>
+
+<span class="keyword">get_grade</span>(week_score):
+  IF week_score >= <span class="value">85.0</span>  → <span class="fn">"A"</span>
+  IF week_score >= <span class="value">70.0</span>  → <span class="fn">"B"</span>
+  ELSE                  → <span class="fn">"C"</span>
+
+<span class="comment">-- Grade message (forward-looking, used in Pulse grade card) --</span>
+<span class="keyword">get_grade_message</span>(week_score, days_remaining_in_week):
+
+  IF grade = "A":
+    "Excellent week. Your system is running well."
+
+  IF grade = "B" AND days_remaining > 0:
+    points_to_a = CEIL((85 - week_score) * week_target / 100)
+    "You're doing well — {points_to_a} more check-in(s) today for an A."
+
+  IF grade = "B" AND days_remaining = 0:
+    "Solid week. Finishing strong is what consistency looks like."
+
+  IF grade = "C" AND days_remaining > 0:
+    points_to_b = CEIL((70 - week_score) * week_target / 100)
+    "Behind pace — {points_to_b} more check-in(s) needed to reach a B."
+
+  IF grade = "C" AND days_remaining = 0:
+    "A tough week. Note what made it hard — that's useful data."
+
+<span class="comment">-- days_remaining = 0 means it is Sunday and the week is closing tonight</span>
+<span class="comment">-- Threshold bar positions on the grade card:</span>
+<span class="comment">-- C/B boundary at 70% of bar width</span>
+<span class="comment">-- B/A boundary at 85% of bar width</span>
+<span class="comment">-- User's current position shown as a marker on the bar</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 4 — Streak</div>
+      <p class="prose">The most complex calculation in the system. A streak is the number of consecutive calendar days on which a habit was completed, counting backwards from the most recent completed day.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Streak calculation for a single habit --</span>
+
+<span class="keyword">get_streak</span>(habit_id, reference_date):
+  <span class="comment">-- reference_date is today in the user's local timezone</span>
+  <span class="comment">-- We look backwards from yesterday (today is pending)</span>
+
+  <span class="comment">-- Step 1: Get all completed log dates for this habit, newest first --</span>
+  logs = SELECT log_date FROM habit_logs
+    WHERE habit_id = :habit_id
+      AND completed = true
+    ORDER BY log_date DESC
+
+  <span class="comment">-- Step 2: Determine the starting point --</span>
+  check_date = reference_date - 1 day  <span class="comment">-- start from yesterday</span>
+
+  <span class="comment">-- Exception: if today is already completed, start from today --</span>
+  IF reference_date IN logs:
+    check_date = reference_date
+
+  <span class="comment">-- Step 3: Walk backwards, counting consecutive completed days --</span>
+  streak = 0
+  WHILE check_date IN logs:
+    streak += 1
+    check_date = check_date - 1 day
+
+  RETURN streak
+
+<span class="comment">-- Key rules: --</span>
+<span class="comment">-- A gap of even one day breaks the streak (streak resets to 0)</span>
+<span class="comment">-- Today counts toward the streak only if completed</span>
+<span class="comment">-- Today does NOT break the streak if not yet completed (it's pending)</span>
+<span class="comment">-- Yesterday not completed = streak is 0 (broken), not pending</span>
+<span class="comment">-- Streak is per-habit, not global</span>
+<span class="comment">-- "14 day streak" means the habit was completed on 14 consecutive calendar days</span>
+
+<span class="comment">-- Longest active streak (shown on Now score card) --</span>
+<span class="keyword">longest_active_streak</span> =
+  MAX(get_streak(habit.id, today))
+  FOR EACH active habit
+  WHERE get_streak(habit.id, today) > 0</pre>
+      </div>
+
+      <div class="callout">
+        <p>The "today is pending" rule is the most important nuance. If today is Monday and I haven't checked in yet, my streak is calculated from Sunday backwards — today doesn't break it, but it also doesn't count yet. This means the streak number in the top bar can increase mid-day once the user checks off today's habit. This matches the design — the streak pill on Now updates live as the user checks in.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 5 — Monthly consistency</div>
+      <p class="prose">The per-habit percentage shown in the Story monthly heatmap, the monthly summary badges (Best/Strong/Good/Watch), and the Goal vs Actual widget.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Monthly consistency for one habit in one month --</span>
+
+<span class="keyword">get_monthly_consistency</span>(habit_id, year, month):
+
+  <span class="comment">-- Step 1: Get every Monday (week_start) within the month --</span>
+  weeks_in_month = all Mondays where the week overlaps with [year, month]
+  <span class="comment">-- A week "overlaps" if any day of that Mon–Sun falls in the month</span>
+  <span class="comment">-- A week that starts in February and ends in March is counted in both months</span>
+  <span class="comment">-- but only the days within the target month contribute to the score</span>
+
+  <span class="comment">-- Step 2: For each week, get the active goal --</span>
+  <span class="comment">-- Pro-rate for partial weeks at month boundaries --</span>
+  monthly_target = 0
+  FOR EACH week IN weeks_in_month:
+    goal = get_goal(habit_id, week.monday)
+    days_in_month = COUNT days of this week that fall within [year, month]
+    <span class="comment">-- Full week: days_in_month = 7, contribute full goal</span>
+    <span class="comment">-- Partial week: pro-rate proportionally</span>
+    monthly_target += goal * (days_in_month / 7)
+
+  monthly_target = ROUND(monthly_target)  <span class="comment">-- round to nearest integer</span>
+
+  <span class="comment">-- Step 3: Count actual completions in the month --</span>
+  monthly_completed =
+    COUNT habit_logs
+    WHERE habit_id = :habit_id
+      AND log_date BETWEEN first_day_of_month AND last_day_of_month
+      AND completed = true
+
+  <span class="comment">-- Step 4: Calculate consistency --</span>
+  consistency = ROUND((monthly_completed / monthly_target) * 100, 1)
+
+  RETURN consistency
+
+<span class="comment">-- Heatmap colour thresholds (Story intensity heatmap) --</span>
+<span class="keyword">heatmap_colour</span>(consistency):
+  IF consistency >= <span class="value">70</span>  → <span class="fn">green</span>   (#DCFCE7 bg, #166534 text)
+  IF consistency >= <span class="value">40</span>  → <span class="fn">amber</span>   (#FEF9C3 bg, #854D0E text)
+  ELSE               → <span class="fn">grey</span>    (#F1F5F9 bg, #94A3B8 text)
+
+<span class="comment">-- Monthly habit summary badge thresholds (Story monthly summary) --</span>
+<span class="keyword">summary_badge</span>(consistency):
+  IF consistency >= <span class="value">90</span>  → <span class="fn">"Best"</span>
+  IF consistency >= <span class="value">75</span>  → <span class="fn">"Strong"</span>
+  IF consistency >= <span class="value">60</span>  → <span class="fn">"Good"</span>
+  ELSE               → <span class="fn">"Watch"</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 6 — Month score</div>
+      <p class="prose">The overall monthly score shown on the Story score card — the single number summarising the whole month. It is the average of all weekly scores within the month, not the monthly consistency of individual habits.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Month score --</span>
+
+<span class="keyword">get_month_score</span>(user_id, year, month):
+
+  weeks = all weeks that overlap with [year, month]
+
+  weekly_scores = []
+  FOR EACH week IN weeks:
+    score = get_week_score(user_id, week.monday)
+    IF score IS NOT NULL:          <span class="comment">-- skip weeks before the user started</span>
+      weekly_scores.append(score)
+
+  IF weekly_scores is empty:
+    RETURN null                    <span class="comment">-- no data yet</span>
+
+  RETURN ROUND(AVG(weekly_scores), 1)
+
+<span class="comment">-- Why average of week scores rather than raw completions/targets? --</span>
+<span class="comment">-- Because it matches what the user already sees week by week in Pulse.</span>
+<span class="comment">-- A month score of 78% means "your average Pulse week this month was 78%".</span>
+<span class="comment">-- This is more intuitive than a raw ratio across all 4+ weeks.</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 7 — Milestone auto-detection triggers</div>
+      <p class="prose">The system automatically creates Milestone records when certain thresholds are crossed. These run as server-side checks after each check-in is saved.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Auto-detection triggers (run after each habit_log INSERT/UPDATE) --</span>
+
+<span class="comment">-- Trigger 1: Streak milestones --</span>
+<span class="keyword">streak_milestones</span> = [7, 14, 21, 30, 60, 90, 180, 365]
+AFTER check-in saved:
+  current_streak = get_streak(habit_id, today)
+  IF current_streak IN streak_milestones:
+    IF no milestone EXISTS for (user_id, habit_id, type=streak_record,
+       metadata.streak_length = current_streak):
+      CREATE milestone(
+        type = "streak_record",
+        title = "{current_streak}-day streak — {habit.name}",
+        habit_id = habit_id,
+        milestone_date = today,
+        metadata = { streak_length: current_streak, habit_name: habit.name }
+      )
+
+<span class="comment">-- Trigger 2: First perfect day (all active habits completed) --</span>
+AFTER check-in saved:
+  IF today_completed = today_total AND today_total > 0:
+    IF no milestone EXISTS for (user_id, type=first_perfect_day):
+      CREATE milestone(
+        type = "first_perfect_day",
+        title = "First perfect day — all {today_total} habits completed",
+        milestone_date = today
+      )
+
+<span class="comment">-- Trigger 3: First A-grade week --</span>
+AFTER week closes (Sunday end-of-day job):
+  week_score = get_week_score(user_id, this_week_monday)
+  IF week_score >= 85:
+    IF no milestone EXISTS for (user_id, type=first_a_week):
+      CREATE milestone(
+        type = "first_a_week",
+        title = "First A-grade week — {week_score}%",
+        milestone_date = this_week_sunday,
+        metadata = { week_score: week_score, week_start: this_week_monday }
+      )
+
+<span class="comment">-- Trigger 4: Personal best week score --</span>
+AFTER week closes:
+  week_score = get_week_score(user_id, this_week_monday)
+  previous_best = MAX week_score from all previous completed weeks
+  IF week_score > previous_best:
+    CREATE milestone(
+      type = "personal_best",
+      title = "Personal best week — {week_score}%",
+      milestone_date = this_week_sunday,
+      metadata = { week_score: week_score, previous_best: previous_best }
+    )
+
+<span class="comment">-- Trigger 5: Habit added (system history) --</span>
+AFTER habits INSERT:
+  CREATE milestone(
+    type = "habit_added",
+    title = "{habit.name} added to your system",
+    habit_id = habit.id,
+    milestone_date = today
+  )
+
+<span class="comment">-- Trigger 6: Habit archived (system history) --</span>
+AFTER habits UPDATE SET archived_at:
+  CREATE milestone(
+    type = "habit_archived",
+    title = "{habit.name} archived after {days_active} days",
+    habit_id = habit.id,
+    milestone_date = today,
+    metadata = { days_active: days_since_created }
+  )</pre>
+      </div>
+
+      <div class="callout amber">
+        <p>Streak milestones only fire at the defined thresholds (7, 14, 21, 30, 60, 90, 180, 365) — not every day. The duplicate check (IF no milestone EXISTS) prevents the same milestone being created twice if a trigger fires more than once. The personal best trigger fires every time a new best is achieved — so a user who keeps breaking their record will have multiple personal_best milestones in their timeline, which is the intended experience.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 8 — Consyst observation logic</div>
+      <p class="prose">The "Consyst notices" widget on Now and the "Consyst surfaces" card in Reflect. These are not stored calculations — they are generated on demand when the user opens the relevant screen. The system runs a set of pattern checks against the user's data and returns the most relevant observation.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Consyst observation candidates (evaluated in priority order) --</span>
+<span class="comment">-- Returns the single highest-priority observation to show --</span>
+
+<span class="keyword">get_observation</span>(user_id, context):
+  <span class="comment">-- context = "now" (dashboard) or "reflect" (journal)</span>
+
+  candidates = []
+
+  <span class="comment">-- Pattern 1: Active streak milestone approaching --</span>
+  FOR EACH habit in active_habits:
+    streak = get_streak(habit.id, today)
+    next_milestone = next value in [7,14,21,30,60,90,180,365] above streak
+    IF next_milestone - streak &lt;= 2:
+      candidates.add(priority=1,
+        "{habit.name} is {streak} days in — {next_milestone - streak} more day(s) to a milestone.")
+
+  <span class="comment">-- Pattern 2: Habit slipping — below 50% of weekly goal with 2+ days left --</span>
+  FOR EACH habit in active_habits:
+    days_completed_this_week = COUNT logs this week for habit
+    current_goal = get_goal(habit.id, this_week_monday)
+    days_left_in_week = days until Sunday
+    IF days_completed_this_week / current_goal &lt; 0.5 AND days_left_in_week >= 2:
+      candidates.add(priority=2,
+        "{habit.name} is behind this week — {current_goal - days_completed_this_week} needed in {days_left_in_week} days.")
+
+  <span class="comment">-- Pattern 3: Top performing habit this week --</span>
+  best_habit = habit with highest (completed / goal) ratio this week
+  IF best_habit.ratio >= 1.0:
+    candidates.add(priority=3,
+      "{best_habit.name} has already hit its weekly goal. Strong week.")
+
+  <span class="comment">-- Pattern 4: Week score improvement --</span>
+  this_week = get_week_score(user_id, this_monday)
+  last_week = get_week_score(user_id, last_monday)
+  IF this_week > last_week AND this_week - last_week >= 8:
+    candidates.add(priority=3,
+      "Up {this_week - last_week} points on last week. The system is working.")
+
+  <span class="comment">-- Pattern 5: Day-of-week slip pattern (requires 4+ weeks of data) --</span>
+  IF user has >= 4 weeks of data:
+    today_of_week = day name (e.g. "Sunday")
+    slip_rate = % of [today_of_week] days where habit was NOT completed, last 4 weeks
+    worst_habit_today = habit with highest slip_rate on today_of_week
+    IF worst_habit_today.slip_rate >= 0.75:
+      candidates.add(priority=2,
+        "{worst_habit_today.name} tends to slip on {today_of_week}s. Good day to break that.")
+
+  <span class="comment">-- Return highest priority candidate (lowest priority number) --</span>
+  <span class="comment">-- If no candidates: return null (widget hidden, not shown as empty) --</span>
+  RETURN candidates.sort_by(priority).first()
+
+<span class="comment">-- The widget is hidden entirely when no observation qualifies --</span>
+<span class="comment">-- It never shows a generic message just to fill space --</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation 9 — Days running</div>
+      <p class="prose">The "day N" counter shown in the sidebar, the Settings profile, and the Now top bar on Day 1. The simplest calculation but important to define precisely.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- Days running --</span>
+
+<span class="keyword">days_running</span>(user_id):
+  system_started = users.system_started_at WHERE id = :user_id
+  today = current date in user's timezone
+  RETURN (today - system_started).days + 1
+
+<span class="comment">-- +1 because the first day is "day 1", not "day 0"</span>
+<span class="comment">-- system_started_at = 2026-03-01, today = 2026-03-29 → 29 days</span>
+<span class="comment">-- (2026-03-29 - 2026-03-01) = 28 days + 1 = 29 ✓</span></pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Calculation summary — all computed values</div>
+      <table class="rel-table">
+        <thead>
+          <tr><th>#</th><th>Calculation</th><th>Used in</th><th>Inputs required</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C1</td><td><span class="rel-from">Today's progress</span></td><td style="font-size:11px;color:var(--stone);">Now score card, check-in count</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">habit_logs today, habits count</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C2</td><td><span class="rel-from">Week score</span></td><td style="font-size:11px;color:var(--stone);">Now, Pulse score card, Story trend, grade input</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">habit_logs, weekly_goals, habits</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C3</td><td><span class="rel-from">Weekly grade</span></td><td style="font-size:11px;color:var(--stone);">Pulse grade card, Story summary badge</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">week_score</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C4</td><td><span class="rel-from">Streak</span></td><td style="font-size:11px;color:var(--stone);">Now streak pill, Pulse streaks, Habits table</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">habit_logs ordered by date</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C5</td><td><span class="rel-from">Monthly consistency</span></td><td style="font-size:11px;color:var(--stone);">Story heatmap, summary badges, Goal vs Actual</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">habit_logs, weekly_goals for month</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C6</td><td><span class="rel-from">Month score</span></td><td style="font-size:11px;color:var(--stone);">Story score card, year in review</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">weekly scores for all weeks in month</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C7</td><td><span class="rel-from">Milestone auto-detection</span></td><td style="font-size:11px;color:var(--stone);">Reflect milestones, Story life timeline</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">streak, week_score, existing milestones</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C8</td><td><span class="rel-from">Consyst observation</span></td><td style="font-size:11px;color:var(--stone);">Now notice widget, Reflect surfaces card</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">habit_logs, weekly_goals, streak, week scores</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;color:var(--teal);">C9</td><td><span class="rel-from">Days running</span></td><td style="font-size:11px;color:var(--stone);">Sidebar, Settings profile, Now Day 1 state</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">users.system_started_at, today</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Performance notes — what to cache</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">P1</div><div><div class="pi-title">Week score — compute on demand, consider caching after week closes</div><div class="pi-text">During an active week, week score changes with every check-in — don't cache it. Once a week is closed (Sunday passes), the score is immutable. A background job can compute and store the final week score in a cached_week_scores table to avoid recalculating it every time Story or the past-weeks archive is loaded.</div></div></div>
+        <div class="pi"><div class="pi-n">P2</div><div><div class="pi-title">Streak — compute on demand</div><div class="pi-text">Streak changes with every check-in and every new day. Always computed fresh. With the (habit_id, log_date DESC) index from Layer 2, this is a fast sequential scan on a small set of rows — no caching needed.</div></div></div>
+        <div class="pi"><div class="pi-n">P3</div><div><div class="pi-title">Monthly consistency — compute on demand for current month, cache past months</div><div class="pi-text">Like week scores, past months are immutable. A background job after each month closes can cache the monthly consistency per habit in a cached_monthly_stats table. Current month is always computed fresh.</div></div></div>
+        <div class="pi"><div class="pi-n">P4</div><div><div class="pi-title">Consyst observation — compute on page load, no cache</div><div class="pi-text">Observations are contextual and change frequently. Always compute fresh on each Now or Reflect load. The query set is bounded (limited to current week's data) so it's fast without caching.</div></div></div>
+      </div>
+
+      <div class="callout">
+        <p>Layer 3 is complete. Nine calculations fully defined with precise pseudocode. The most important: (1) week score uses versioned goals so historical scores are always accurate, (2) streak counts calendar days backwards from yesterday unless today is already checked, (3) the observation engine returns null when no pattern qualifies — it never shows a generic message. Before proceeding to Layer 4, confirm: do these calculations match your expectations? Any thresholds to adjust — the A/B/C grade cutoffs, streak milestone points, observation trigger conditions?</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- LAYER 4 PLACEHOLDER -->
+<div class="doc-section" id="layer4">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">04</div>
+      <div>
+        <div class="sh-title">Layer 4 — Edge Cases &amp; Constraints</div>
+        <p class="sh-intro">Every situation where the model needs a defined rule to behave consistently. Undefined edge cases become developer guesswork — which means inconsistent behaviour. Each case here has exactly one correct answer.</p>
+      </div>
+    </div>
+
+    <div class="layer-badge layer-done">✓ Complete · confirmed March 2026</div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 1 — Habit archived mid-week</div>
+      <p class="prose"><strong>Situation:</strong> The user archives Exercise on Wednesday. The week started Monday. Exercise had a goal of 3× and was completed Monday and Tuesday.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E1.1</div>
+          <div>
+            <div class="pi-title">Include the archived habit in the current week's score</div>
+            <div class="pi-text">The habit was active at the start of the week. Its Monday and Tuesday completions happened legitimately. Its goal applies to the days it was active. The week score denominator includes Exercise's target for the days it was active (Mon–Tue = 2 days, goal = 3×, pro-rated contribution = 2/7 × 3 = ~0.86). The numerator includes its 2 completions. Archiving mid-week does not retroactively remove the habit from the current week's score.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E1.2</div>
+          <div>
+            <div class="pi-title">Archived habits are excluded from all future weeks immediately</div>
+            <div class="pi-text">From Thursday onwards (the day after archiving), Exercise does not appear in the check-in list, does not contribute to the weekly target denominator, and cannot receive new habit_logs. The week score from Thursday through Sunday is calculated without Exercise in scope.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E1.3</div>
+          <div>
+            <div class="pi-title">Implementation rule for week score with mid-week archive</div>
+            <div class="pi-text">In the get_week_score calculation, include a habit if: (a) it was active on the Monday of the week (archived_at IS NULL OR archived_at &gt; week_start_date), AND (b) it was created on or before the Sunday of the week (created_at &lt;= week_end_date). The denominator uses the full weekly goal even for archived habits — pro-rating by day of archive adds complexity without meaningful accuracy gain for a 7-day window.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout amber">
+        <p>Decision: use full goal in denominator even for a mid-week archive. If Exercise had a 3× goal and the user archived it Wednesday after completing it Monday and Tuesday (2/3), the week score reflects that slight shortfall — which is correct. The user chose to archive mid-week; the score reflects their week honestly.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 2 — Habit archived mid-month</div>
+      <p class="prose"><strong>Situation:</strong> The user archives Meditation on March 15. The month has 31 days. Meditation had a goal of 5× per week.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E2.1</div>
+          <div>
+            <div class="pi-title">Monthly consistency uses the days the habit was active</div>
+            <div class="pi-text">For the Story heatmap and monthly summary, Meditation's monthly target is pro-rated to the days it was active. It was active for 15 of 31 days. The monthly target = SUM of weekly goal contributions for each week, counting only days where the habit was active. Weeks that fall entirely before March 15 contribute their full weekly goal. The week containing March 15 contributes a partial goal. Weeks after March 15 contribute zero.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E2.2</div>
+          <div>
+            <div class="pi-title">Archived habits still appear in Story historical view</div>
+            <div class="pi-text">In the Story monthly view for March, Meditation appears in the heatmap and monthly summary — labelled with a subtle "archived" indicator. Its consistency is calculated against its pro-rated target. In April and beyond, it does not appear in the active habit list but its March data remains in the Story archive.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E2.3</div>
+          <div>
+            <div class="pi-title">Month score is unaffected by mid-month archive</div>
+            <div class="pi-text">The month score (average of weekly scores) already handles this correctly via E1.2 and E1.3 — each week score includes the habit only for the days it was active. No special handling needed at the month score level.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 3 — Goal change mid-week</div>
+      <p class="prose"><strong>Situation:</strong> It is Wednesday. The user changes their Reading goal from 5× to 3× per week. The current week started Monday.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E3.1</div>
+          <div>
+            <div class="pi-title">Goal changes always take effect the following Monday</div>
+            <div class="pi-text">When the user saves a new goal, the application inserts a new weekly_goals row with week_start_date = next Monday. The current week's score continues to use the old goal (3× in this case is the new goal — but the current week uses the 5× goal that was set at the start of the week). This is enforced at the application layer, not the database layer.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E3.2</div>
+          <div>
+            <div class="pi-title">The UI communicates this clearly</div>
+            <div class="pi-text">When the user saves a goal change, the Habits modal shows a confirmation: "New goal takes effect from Monday, [date]." The current week's Pulse grid continues to show the old target. This prevents confusion when the user sees their score calculated against a goal they thought they changed.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E3.3</div>
+          <div>
+            <div class="pi-title">Exception — first goal set on a habit</div>
+            <div class="pi-text">When a user creates a new habit, the first weekly_goals row is inserted with week_start_date = the Monday of the current week (not next Monday). This means the habit participates in the current week's score immediately from the day it was created. The denominator is pro-rated for the remaining days of the week — if created on Wednesday with a 3× goal, the denominator contribution for this week is approximately 3 × (5/7) ≈ 2.1, rounded to 2.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 4 — Habit added mid-week</div>
+      <p class="prose"><strong>Situation:</strong> The user adds a new habit (Running, 3× per week) on Thursday of an ongoing week.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E4.1</div>
+          <div>
+            <div class="pi-title">New habits participate in the current week immediately</div>
+            <div class="pi-text">Running appears in the Now check-in list immediately. Its goal is pro-rated for the remaining days of the week (Thu–Sun = 4 days, goal = 3×, pro-rated = 3 × 4/7 ≈ 1.7, rounded to 2). The denominator for this week increases by 2. The user can check off Running on Thursday, Friday, Saturday, and Sunday.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E4.2</div>
+          <div>
+            <div class="pi-title">No retroactive check-ins for days before creation</div>
+            <div class="pi-text">Running cannot be checked off for Monday, Tuesday, or Wednesday — those days predate the habit's creation. The Pulse grid shows the habit starting from Thursday, with Mon–Wed cells empty and locked. The user cannot backdate check-ins for a habit to before it existed.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E4.3</div>
+          <div>
+            <div class="pi-title">From next week onwards, Running participates at full goal</div>
+            <div class="pi-text">The weekly_goals row inserted on creation has week_start_date = this Monday (current week). Next week, the same row applies with its full 3× target across all 7 days — no pro-rating needed for complete weeks.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 5 — Timezone changes</div>
+      <p class="prose"><strong>Situation:</strong> The user moves from New York (UTC-5) to London (UTC+0). They update their timezone in Settings on March 15.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E5.1</div>
+          <div>
+            <div class="pi-title">All past habit_logs are stored as DATE — they are timezone-agnostic</div>
+            <div class="pi-text">A habit_log with log_date = 2026-03-10 means "I completed this on March 10th." It does not record a timestamp — just a date. This date was correct for the user's timezone at the time of logging. Changing timezone does not alter past log_date values. Past data is unaffected.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E5.2</div>
+          <div>
+            <div class="pi-title">New check-ins use the updated timezone immediately</div>
+            <div class="pi-text">From the moment the user saves their new timezone in Settings, all subsequent check-ins use the new timezone to determine today's date. If it is 11pm in New York (which is 4am the next day in London), after the timezone change "today" becomes the next calendar day.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E5.3</div>
+          <div>
+            <div class="pi-title">Streak calculation uses the current timezone</div>
+            <div class="pi-text">Streak always walks backwards from today in the user's current timezone. If a timezone change means "today" is now March 16 instead of March 15, the streak calculation starts from March 16. This could theoretically skip a date in the streak walk — which the system treats as a broken streak for that transition day. This is the accepted trade-off: timezone changes are rare, and the streak accurately reflects the user's current timezone going forward. A milestone record in the system history log notes the timezone change date.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E5.4</div>
+          <div>
+            <div class="pi-title">Timezone is stored on the user record, applied at read time</div>
+            <div class="pi-text">The application converts all date-sensitive queries to the user's timezone at query time. The database stores DATE values neutrally. The conversion happens in the application layer: "today" = current UTC timestamp converted to users.timezone → extract date portion.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 6 — Streak edge cases</div>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E6.1</div>
+          <div>
+            <div class="pi-title">Day 1 streak</div>
+            <div class="pi-text">If a user completes a habit for the very first time today, their streak is 1. Yesterday has no log (the habit didn't exist or wasn't completed), so the backwards walk stops immediately after counting today. Streak = 1 is correct — they have a 1-day streak starting today.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E6.2</div>
+          <div>
+            <div class="pi-title">Habit existed but was never checked — streak is 0</div>
+            <div class="pi-text">If a habit exists but the user has never completed it (no completed habit_logs), the streak is 0. This is the correct display for a habit that has been added but not yet started.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E6.3</div>
+          <div>
+            <div class="pi-title">User unchecks today's completed habit</div>
+            <div class="pi-text">If today was completed and the user unchecks it (setting completed = false), the streak recalculates from yesterday. If yesterday was completed, the streak still shows that count — today is now pending again, not broken. The streak reflects the last confirmed completed day.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E6.4</div>
+          <div>
+            <div class="pi-title">Midnight boundary — check-in at 11:59pm</div>
+            <div class="pi-text">A check-in at 11:59pm creates a habit_log with log_date = today (in the user's timezone). At 12:00am the next day, "today" becomes tomorrow. The streak walk starts from yesterday (the 11:59pm check-in date), correctly counting it. No race condition — the log_date is determined at write time and stored permanently.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E6.5</div>
+          <div>
+            <div class="pi-title">No backdating allowed</div>
+            <div class="pi-text">Users cannot log a check-in for a date in the past. The application enforces: log_date must equal today in the user's timezone. This prevents streak manipulation and keeps the data honest. The one exception: if a bug caused a missed log, an admin can backdate — but no user-facing UI exposes this.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E6.6</div>
+          <div>
+            <div class="pi-title">No future dating allowed</div>
+            <div class="pi-text">Similarly, log_date cannot be in the future. Enforced at the application layer with a constraint: log_date &lt;= today in the user's timezone. A database check constraint provides belt-and-suspenders enforcement.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 7 — Data integrity constraints</div>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E7.1</div>
+          <div>
+            <div class="pi-title">Check-in on an archived habit — blocked</div>
+            <div class="pi-text">The application layer prevents creating a habit_log for a habit where archived_at IS NOT NULL. If somehow a request slips through (race condition, direct API call), a database trigger or check constraint rejects it: CONSTRAINT check_habit_not_archived CHECK that the referenced habit's archived_at IS NULL at the time of INSERT.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E7.2</div>
+          <div>
+            <div class="pi-title">Duplicate check-in on same habit + date — upsert, not error</div>
+            <div class="pi-text">The UNIQUE(habit_id, log_date) constraint means two INSERT attempts for the same habit and date will conflict. The application handles this with an upsert: INSERT ... ON CONFLICT (habit_id, log_date) DO UPDATE SET completed = :new_value, updated_at = NOW(). The user tapping a checkbox twice quickly results in the second tap toggling the existing record — not an error.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E7.3</div>
+          <div>
+            <div class="pi-title">habit_logs.user_id drift — cross-user log impossible</div>
+            <div class="pi-text">Because user_id is denormalised on habit_logs, there is a theoretical risk of a log's user_id not matching its parent habit's user_id. This is prevented by: (a) only writing habit_logs through the application layer which always sets user_id from the authenticated session, never from user input, and (b) a database trigger that validates habit_logs.user_id = habits.user_id on every INSERT.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E7.4</div>
+          <div>
+            <div class="pi-title">WeeklyGoal week_start_date must always be a Monday</div>
+            <div class="pi-text">The week_start_date field is only valid if it is a Monday. The application always computes week_start_date as the Monday of the current or next week. A database check constraint enforces this: EXTRACT(DOW FROM week_start_date) = 1 (Monday in ISO week numbering). This prevents any invalid goal rows from entering the system.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E7.5</div>
+          <div>
+            <div class="pi-title">reflection_month must always be the first of the month</div>
+            <div class="pi-text">reflection_month is stored as the first day of the month (e.g. 2026-03-01). A database check constraint enforces: EXTRACT(DAY FROM reflection_month) = 1. This prevents partial-month keys and ensures consistent querying.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E7.6</div>
+          <div>
+            <div class="pi-title">target_days must be between 1 and 7</div>
+            <div class="pi-text">A weekly goal of 0 days is meaningless (why track a habit you never intend to do?) and a goal of more than 7 is impossible. Database check constraint: target_days BETWEEN 1 AND 7. The day-pip selector in the UI also enforces this — you cannot deselect all days.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 8 — Authentication edge cases</div>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E8.1</div>
+          <div>
+            <div class="pi-title">Same email via Google and email/password</div>
+            <div class="pi-text">Flagged in Layer 1. Resolution: if a user signs up with Google using <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="e7868b829fa7808a868e8bc984888a">[email&#160;protected]</a>, a users row is created with google_id populated and password_hash null. If the same person later tries to sign up with email/password using <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="71101d140931161c10181d5f121e1c">[email&#160;protected]</a>, the system detects the email collision and responds: "An account with this email already exists. Sign in with Google instead." No duplicate user record is created. The email field is UNIQUE on the users table — the collision is caught at the database level even if the application check fails.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E8.2</div>
+          <div>
+            <div class="pi-title">Google account email changes</div>
+            <div class="pi-text">If a user changes their Google account's primary email, Google's OAuth response will return the same google_id but a different email. The system matches on google_id first — not email — so the user still logs in successfully. The users.email field is updated to reflect the new Google email. This preserves the account while keeping the email current.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E8.3</div>
+          <div>
+            <div class="pi-title">Linking Google to an existing email/password account</div>
+            <div class="pi-text">Not in scope for the initial design — the sign in page offers Google or email/password as independent paths. Account linking (connecting a Google account to an existing email/password account) is a future feature. For now, the two auth methods are independent. This is documented as a known limitation, not a bug.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E8.4</div>
+          <div>
+            <div class="pi-title">Deleted account — email reuse</div>
+            <div class="pi-text">If a user deletes their account and later signs up again with the same email, they get a brand new users row with a new UUID and system_started_at. All previous data was cascade-deleted. The new account has no memory of the old one. This is correct — account deletion is permanent, and the system communicates this clearly in the danger zone confirmation dialog.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 9 — Score and calculation edge cases</div>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E9.1</div>
+          <div>
+            <div class="pi-title">Week score with zero habits</div>
+            <div class="pi-text">If a user has no active habits, week_target = 0. Division by zero is prevented by returning null rather than 0%. The UI shows the empty state — the score card displays "—" rather than 0%. This matches the Day 1 empty state design exactly.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E9.2</div>
+          <div>
+            <div class="pi-title">Week score exceeding 100%</div>
+            <div class="pi-text">Defined in Layer 3. Raw value is stored and used in the Top Performer widget. Display is capped at 100% in the score card and grade card. No special handling needed — the data is correct, only the display clips it.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E9.3</div>
+          <div>
+            <div class="pi-title">Month score for a month with no completed weeks</div>
+            <div class="pi-text">If the user had habits but completed zero check-ins in a month, weekly_scores will be a list of 0.0 values. AVG([0,0,0,0]) = 0.0 — month score is 0%. This is correct and different from the null returned when there are no habits (E9.1). Zero means "you had habits but didn't complete any." Null means "you had no habits to track."</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E9.4</div>
+          <div>
+            <div class="pi-title">Consistency percentage for a newly added habit mid-month</div>
+            <div class="pi-text">A habit added on March 20 has a monthly target pro-rated to March 20–31 only (12 days). Its consistency is calculated against that pro-rated target — not the full month. This is correct and prevents a newly added habit from automatically showing a low consistency score for the days before it existed.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E9.5</div>
+          <div>
+            <div class="pi-title">Grade message when days_remaining calculation yields 0 check-ins needed</div>
+            <div class="pi-text">If a user is at 84.9% and needs only 0.1 more percentage points to reach an A — which rounds to 0 additional check-ins — the message should not say "0 more check-ins for an A." The application floors the check-ins needed at 1 in the message: IF CEIL(points_needed × week_target / 100) = 0 THEN show "Almost there — finish strong today."</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E9.6</div>
+          <div>
+            <div class="pi-title">Milestone duplicate detection across streak resets</div>
+            <div class="pi-text">If a user achieves a 7-day streak, breaks it, and then achieves a 7-day streak again — should a second "7-day streak" milestone be created? Yes. The duplicate check in Layer 3 (C7) uses the metadata.streak_length field but does not prevent a second milestone of the same type if the first streak was broken and rebuilt. The milestone type is streak_record, and each achievement of that milestone is worth recording. The life timeline shows both, separated by the reset date.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Theme 10 — First week of system</div>
+      <p class="prose"><strong>Situation:</strong> The user's system_started_at is March 4 (a Wednesday). Their first week in Consyst is a partial week — Wednesday through Sunday only.</p>
+
+      <div class="principle-list">
+        <div class="pi">
+          <div class="pi-n">E10.1</div>
+          <div>
+            <div class="pi-title">First week is always partial — treat it like any mid-week habit addition</div>
+            <div class="pi-text">The week of March 2 (Mon–Sun) started before the user existed. The user's first participation is from March 4. The week score for that week is calculated from March 4 onwards only — habits are pro-rated for the days remaining in the week (Wed–Sun = 5 days). The Pulse grid shows Mon–Tue cells as locked/empty for all habits.</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E10.2</div>
+          <div>
+            <div class="pi-title">Story monthly view for the first month</div>
+            <div class="pi-text">In Story, the first month shows only the weeks the user was active. Weeks before system_started_at are excluded from the month score average and from the heatmap. The heatmap cells for those weeks show as "not applicable" (no color, no percentage) rather than grey — grey means tracked but low, which is different from "not yet started."</div>
+          </div>
+        </div>
+        <div class="pi">
+          <div class="pi-n">E10.3</div>
+          <div>
+            <div class="pi-title">Consistency trend starts from the first full or partial week</div>
+            <div class="pi-text">The consistency trend chart in Story shows all weeks from system_started_at onwards. The first week may have a lower score due to being partial — this is expected and the user is not penalised for it in the monthly summary. Week 1 is always shown, even if it is a 2-day partial week.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Edge case summary — complete constraint list</div>
+      <table class="rel-table">
+        <thead>
+          <tr><th>Ref</th><th>Constraint</th><th>Enforced by</th></tr>
+        </thead>
+        <tbody>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E1.3</td><td style="font-size:12px;color:var(--stone);">Habit included in week score if active on the Monday of that week</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E3.1</td><td style="font-size:12px;color:var(--stone);">Goal changes take effect next Monday (except first goal on a new habit)</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E4.2</td><td style="font-size:12px;color:var(--stone);">No check-ins before a habit's created_at date</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB check</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E6.5</td><td style="font-size:12px;color:var(--stone);">No backdating: log_date must equal today in user's timezone</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB check</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E6.6</td><td style="font-size:12px;color:var(--stone);">No future dating: log_date &lt;= today in user's timezone</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB check</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.1</td><td style="font-size:12px;color:var(--stone);">No check-ins on archived habits</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB trigger</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.2</td><td style="font-size:12px;color:var(--stone);">Duplicate check-in → upsert not error (UNIQUE on habit_id, log_date)</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">DB unique constraint</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.3</td><td style="font-size:12px;color:var(--stone);">habit_logs.user_id must equal its parent habit's user_id</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB trigger</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.4</td><td style="font-size:12px;color:var(--stone);">week_start_date must be a Monday (DOW = 1)</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB check</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.5</td><td style="font-size:12px;color:var(--stone);">reflection_month must be first of month (DAY = 1)</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB check</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E7.6</td><td style="font-size:12px;color:var(--stone);">target_days must be between 1 and 7 inclusive</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">UI + DB check constraint</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E8.1</td><td style="font-size:12px;color:var(--stone);">Email uniqueness across all auth methods — no duplicate accounts</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application + DB unique</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E9.1</td><td style="font-size:12px;color:var(--stone);">Week score with zero habits returns null, not 0%</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application</td></tr>
+          <tr><td style="font-family:'DM Mono',monospace;font-weight:700;font-size:11px;color:var(--teal);">E9.5</td><td style="font-size:12px;color:var(--stone);">Grade message check-ins needed floored at 1</td><td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--dust);">Application</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout" style="margin-top:20px;">
+        <p>Layer 4 is complete. Ten edge case themes, 14 specific constraints, all with defined resolution and enforcement layer. The model is now stress-tested. Next is Layer 5 — Final Review — which pulls everything together into a clean, complete, developer-ready document.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- LAYER 5 PLACEHOLDER -->
+<div class="doc-section" id="layer5">
+  <div class="wrap">
+    <div class="sh">
+      <div class="sh-num">05</div>
+      <div>
+        <div class="sh-title">Layer 5 — Final Review</div>
+        <p class="sh-intro">The complete, confirmed, developer-ready data model. All schema amendments from Layers 1–4 incorporated, including the admin/role additions agreed before this layer. This is the source of truth for development.</p>
+      </div>
+    </div>
+
+    <div class="layer-badge layer-done">✓ Complete · confirmed March 2026</div>
+
+    <div class="sub">
+      <div class="sub-label">Schema amendment — users table (admin fields)</div>
+      <p class="prose">Three fields added to the users table before final review, based on the decision made after Layer 4: admin operations require a role distinction, soft-suspension support, and test account flagging at the data level. Without these, admin management relies on fragile hardcoded config and test data contaminates real analytics from day one.</p>
+
+      <div class="entity-grid">
+        <div class="entity-card">
+          <div class="entity-header" style="padding:0;">
+            <div class="entity-accent" style="background:var(--teal);"></div>
+            <div class="entity-header-inner" style="padding:16px 20px;">
+              <div class="entity-name">users — amended</div>
+              <div class="entity-desc">Three fields added to the original Layer 1 definition. All other users fields remain as defined.</div>
+              <div class="entity-tag" style="background:var(--amber-lt);color:#633806;">Amendment</div>
+            </div>
+          </div>
+          <table class="fields-table">
+            <thead>
+              <tr><th style="width:160px;">Field</th><th style="width:130px;">Type</th><th style="width:70px;">Required</th><th>Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="field-name">role</td>
+                <td><span class="field-type enum">ENUM</span></td>
+                <td><span class="field-required req-yes">Yes</span></td>
+                <td class="field-notes">One of: <em>user</em>, <em>admin</em>. Default: 'user'. Determines application-level access. Admin users can access the admin dashboard, look up any user account, backdate check-ins, manually create milestones, and suspend accounts. No multi-level hierarchy for v1 — admin is full access, user is standard. Role is set directly in the database for the first admin; subsequent admins are promoted by an existing admin via the admin dashboard.</td>
+              </tr>
+              <tr>
+                <td class="field-name">suspended_at</td>
+                <td><span class="field-type ts">TIMESTAMPTZ</span></td>
+                <td><span class="field-required req-no">No</span></td>
+                <td class="field-notes">Nullable. Null = account in good standing. Non-null = account suspended at this timestamp. A suspended user cannot sign in — the auth layer checks this field before issuing a session. Their data is fully preserved. Suspension is reversible (set back to null). Different from account deletion, which is permanent and cascade-deletes all data.</td>
+              </tr>
+              <tr>
+                <td class="field-name">is_test</td>
+                <td><span class="field-type bool">BOOLEAN</span></td>
+                <td><span class="field-required req-yes">Yes</span></td>
+                <td class="field-notes">Default: false. True = this is a test or QA account. Test accounts are excluded from all analytics queries, active user counts, aggregate statistics, and any reporting. Set by an admin on account creation or promotion. Allows the team to create realistic test data without polluting real metrics from day one.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="callout amber">
+        <p>Admin scope for v1 is intentionally narrow. No audit log table, no permission scopes, no multi-level roles. The admin is one person (the founder/team) with full access. Complexity is deferred until there is a real operational need for it. The three fields above cover the only scenarios that require data-level support — everything else is application logic on top of existing tables.</p>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Final schema — all seven tables</div>
+      <p class="prose">The complete, clean schema incorporating all decisions from Layers 1–4 and the Layer 5 amendment. This is what gets handed to the developer.</p>
+
+      <div class="formula-block">
+        <pre><span class="comment">-- ═══════════════════════════════════════════════
+-- CONSYST — COMPLETE DATABASE SCHEMA
+-- Version 1.0 · Final · March 2026
+-- ═══════════════════════════════════════════════</span>
+
+<span class="comment">-- ENUMS --</span>
+<span class="keyword">CREATE TYPE</span> user_role <span class="fn">AS ENUM</span> (<span class="value">'user'</span>, <span class="value">'admin'</span>);
+
+<span class="keyword">CREATE TYPE</span> habit_category <span class="fn">AS ENUM</span> (
+  <span class="value">'physical'</span>, <span class="value">'mental'</span>, <span class="value">'growth'</span>, <span class="value">'recovery'</span>,
+  <span class="value">'connection'</span>, <span class="value">'creative'</span>, <span class="value">'spiritual'</span>, <span class="value">'other'</span>
+);
+
+<span class="keyword">CREATE TYPE</span> milestone_type <span class="fn">AS ENUM</span> (
+  <span class="value">'streak_record'</span>, <span class="value">'first_perfect_day'</span>, <span class="value">'first_a_week'</span>,
+  <span class="value">'habit_added'</span>, <span class="value">'habit_archived'</span>, <span class="value">'personal_best'</span>, <span class="value">'manual'</span>
+);
+
+<span class="comment">-- TABLE 1: users --</span>
+<span class="keyword">CREATE TABLE</span> users (
+  id                  UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  name                VARCHAR(100)  NOT NULL,
+  email               VARCHAR(255)  NOT NULL UNIQUE,
+  password_hash       VARCHAR(255)  NULL,           <span class="comment">-- null if Google OAuth</span>
+  google_id           VARCHAR(255)  NULL UNIQUE,    <span class="comment">-- null if email/password</span>
+  avatar_url          TEXT          NULL,
+  system_started_at   DATE          NOT NULL,
+  timezone            VARCHAR(50)   NOT NULL,
+  role                user_role     NOT NULL DEFAULT <span class="value">'user'</span>,
+  suspended_at        TIMESTAMPTZ   NULL,           <span class="comment">-- null = active</span>
+  is_test             BOOLEAN       NOT NULL DEFAULT <span class="value">false</span>,
+  created_at          TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ   NOT NULL DEFAULT now()
+);
+
+<span class="comment">-- TABLE 2: habits --</span>
+<span class="keyword">CREATE TABLE</span> habits (
+  id                  UUID          PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id             UUID          NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  name                VARCHAR(100)  NOT NULL,
+  icon                VARCHAR(10)   NOT NULL DEFAULT <span class="value">'⭐'</span>,
+  category            habit_category NOT NULL DEFAULT <span class="value">'other'</span>,
+  description         TEXT          NULL,
+  default_weekly_goal INTEGER       NOT NULL CHECK (default_weekly_goal BETWEEN 1 AND 7),
+  sort_order          INTEGER       NOT NULL DEFAULT 0,
+  archived_at         TIMESTAMPTZ   NULL,           <span class="comment">-- null = active</span>
+  created_at          TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ   NOT NULL DEFAULT now()
+);
+
+<span class="comment">-- TABLE 3: habit_logs --</span>
+<span class="keyword">CREATE TABLE</span> habit_logs (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  habit_id    UUID        NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+  user_id     UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  log_date    DATE        NOT NULL,
+  completed   BOOLEAN     NOT NULL DEFAULT <span class="value">true</span>,
+  note        TEXT        NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (habit_id, log_date),
+  CONSTRAINT log_date_not_future CHECK (log_date &lt;= CURRENT_DATE)
+);
+
+<span class="comment">-- TABLE 4: weekly_goals --</span>
+<span class="keyword">CREATE TABLE</span> weekly_goals (
+  id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  habit_id          UUID        NOT NULL REFERENCES habits(id) ON DELETE CASCADE,
+  user_id           UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  target_days       INTEGER     NOT NULL CHECK (target_days BETWEEN 1 AND 7),
+  week_start_date   DATE        NOT NULL,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (habit_id, week_start_date),
+  CONSTRAINT week_start_is_monday CHECK (EXTRACT(DOW FROM week_start_date) = 1)
+);
+
+<span class="comment">-- TABLE 5: day_notes --</span>
+<span class="keyword">CREATE TABLE</span> day_notes (
+  id          UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id     UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  note_date   DATE        NOT NULL,
+  content     TEXT        NOT NULL,
+  created_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at  TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, note_date)
+);
+
+<span class="comment">-- TABLE 6: reflections --</span>
+<span class="keyword">CREATE TABLE</span> reflections (
+  id                UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id           UUID        NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  reflection_month  DATE        NOT NULL,
+  wins              JSONB       NULL,
+  gaps              JSONB       NULL,
+  journal           TEXT        NULL,
+  intentions        JSONB       NULL,
+  created_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at        TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (user_id, reflection_month),
+  CONSTRAINT month_is_first_of_month CHECK (EXTRACT(DAY FROM reflection_month) = 1)
+);
+
+<span class="comment">-- TABLE 7: milestones --</span>
+<span class="keyword">CREATE TABLE</span> milestones (
+  id              UUID            PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id         UUID            NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  habit_id        UUID            NULL REFERENCES habits(id) ON DELETE SET NULL,
+  type            milestone_type  NOT NULL,
+  title           VARCHAR(200)    NOT NULL,
+  body            TEXT            NULL,
+  milestone_date  DATE            NOT NULL,
+  is_manual       BOOLEAN         NOT NULL DEFAULT <span class="value">false</span>,
+  metadata        JSONB           NULL,
+  created_at      TIMESTAMPTZ     NOT NULL DEFAULT now()
+);</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Final indexes</div>
+      <div class="formula-block">
+        <pre><span class="comment">-- Performance indexes (from Layer 2, confirmed) --</span>
+
+<span class="comment">-- habit_logs: primary query path for all dashboards</span>
+<span class="keyword">CREATE INDEX</span> idx_habit_logs_user_date
+  ON habit_logs (user_id, log_date DESC);
+
+<span class="keyword">CREATE INDEX</span> idx_habit_logs_habit_date
+  ON habit_logs (habit_id, log_date DESC);
+
+<span class="comment">-- weekly_goals: active goal lookup</span>
+<span class="keyword">CREATE INDEX</span> idx_weekly_goals_habit_week
+  ON weekly_goals (habit_id, week_start_date DESC);
+
+<span class="comment">-- habits: active habit list (partial index)</span>
+<span class="keyword">CREATE INDEX</span> idx_habits_user_active
+  ON habits (user_id)
+  WHERE archived_at IS NULL;
+
+<span class="comment">-- milestones: life timeline</span>
+<span class="keyword">CREATE INDEX</span> idx_milestones_user_date
+  ON milestones (user_id, milestone_date DESC);
+
+<span class="comment">-- day_notes: reflect archive</span>
+<span class="keyword">CREATE INDEX</span> idx_day_notes_user_date
+  ON day_notes (user_id, note_date DESC);
+
+<span class="comment">-- users: admin queries (exclude test accounts from analytics)</span>
+<span class="keyword">CREATE INDEX</span> idx_users_role
+  ON users (role)
+  WHERE is_test = false;</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Final database triggers</div>
+      <div class="formula-block">
+        <pre><span class="comment">-- Trigger 1: Validate habit_logs.user_id matches parent habit's user_id --</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> <span class="fn">validate_habit_log_user</span>()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF (SELECT user_id FROM habits WHERE id = NEW.habit_id) != NEW.user_id THEN
+    RAISE EXCEPTION <span class="value">'habit_logs.user_id must match habits.user_id'</span>;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+<span class="keyword">CREATE TRIGGER</span> trg_validate_habit_log_user
+  BEFORE INSERT OR UPDATE ON habit_logs
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">validate_habit_log_user</span>();
+
+<span class="comment">-- Trigger 2: Block check-ins on archived habits --</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> <span class="fn">validate_habit_not_archived</span>()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF (SELECT archived_at FROM habits WHERE id = NEW.habit_id) IS NOT NULL THEN
+    RAISE EXCEPTION <span class="value">'Cannot log check-in for archived habit'</span>;
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+<span class="keyword">CREATE TRIGGER</span> trg_validate_habit_not_archived
+  BEFORE INSERT ON habit_logs
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">validate_habit_not_archived</span>();
+
+<span class="comment">-- Trigger 3: Auto-update updated_at on all tables --</span>
+<span class="keyword">CREATE OR REPLACE FUNCTION</span> <span class="fn">set_updated_at</span>()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+<span class="comment">-- Apply to all tables with updated_at --</span>
+<span class="keyword">CREATE TRIGGER</span> trg_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">set_updated_at</span>();
+
+<span class="keyword">CREATE TRIGGER</span> trg_habits_updated_at
+  BEFORE UPDATE ON habits
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">set_updated_at</span>();
+
+<span class="keyword">CREATE TRIGGER</span> trg_habit_logs_updated_at
+  BEFORE UPDATE ON habit_logs
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">set_updated_at</span>();
+
+<span class="keyword">CREATE TRIGGER</span> trg_day_notes_updated_at
+  BEFORE UPDATE ON day_notes
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">set_updated_at</span>();
+
+<span class="keyword">CREATE TRIGGER</span> trg_reflections_updated_at
+  BEFORE UPDATE ON reflections
+  FOR EACH ROW EXECUTE FUNCTION <span class="fn">set_updated_at</span>();</pre>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Complete field count — final model</div>
+      <table class="rel-table">
+        <thead>
+          <tr><th>Table</th><th>Fields</th><th>Constraints</th><th>Indexes</th><th>Key decisions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="rel-from">users</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">13</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">UNIQUE(email) UNIQUE(google_id)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_users_role</td>
+            <td style="font-size:11px;color:var(--stone);">+3 admin fields: role, suspended_at, is_test</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">habits</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">11</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">CHECK(goal 1–7)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_habits_user_active (partial)</td>
+            <td style="font-size:11px;color:var(--stone);">archived_at soft delete · sort_order for drag</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">habit_logs</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">8</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">UNIQUE(habit_id, log_date) CHECK(not future)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_user_date · idx_habit_date</td>
+            <td style="font-size:11px;color:var(--stone);">user_id denorm · completed=false is explicit uncheck</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">weekly_goals</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">6</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">UNIQUE(habit_id, week_start) CHECK(Monday) CHECK(1–7)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_habit_week</td>
+            <td style="font-size:11px;color:var(--stone);">Versioned goals — history never retroactively altered</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">day_notes</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">6</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">UNIQUE(user_id, note_date)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_user_date</td>
+            <td style="font-size:11px;color:var(--stone);">One note per user per day · upsert on save</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">reflections</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">9</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">UNIQUE(user_id, month) CHECK(first of month)</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">—</td>
+            <td style="font-size:11px;color:var(--stone);">JSONB arrays for wins/gaps/intentions · upsert pattern</td>
+          </tr>
+          <tr>
+            <td><span class="rel-from">milestones</span></td>
+            <td style="font-weight:800;color:var(--teal);font-family:'DM Mono',monospace;">10</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">habit_id SET NULL on habit delete</td>
+            <td style="font-size:11px;font-family:'DM Mono',monospace;color:var(--stone);">idx_user_date</td>
+            <td style="font-size:11px;color:var(--stone);">Auto + manual in one table · metadata JSONB for flexibility</td>
+          </tr>
+          <tr style="background:var(--chalk);">
+            <td style="font-weight:700;color:var(--ink);">Total</td>
+            <td style="font-weight:800;font-size:20px;color:var(--ink);font-family:'DM Mono',monospace;">63</td>
+            <td style="font-size:11px;color:var(--stone);">14 constraints</td>
+            <td style="font-size:11px;color:var(--stone);">7 indexes</td>
+            <td style="font-size:11px;color:var(--stone);">Across 7 tables · 3 ENUMs · 2 triggers + updated_at trigger</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Design decisions — complete record</div>
+      <p class="prose">Every significant decision made during the data model build, in one place for reference.</p>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">D1</div><div><div class="pi-title">UUID primary keys on all tables</div><div class="pi-text">No sequential integer IDs exposed in URLs or API responses. UUIDs are generated database-side with gen_random_uuid().</div></div></div>
+        <div class="pi"><div class="pi-n">D2</div><div><div class="pi-title">Soft deletes via archived_at (habits) and suspended_at (users)</div><div class="pi-text">Nothing is hard-deleted during normal operation. Habits are archived, not deleted. User accounts are suspended, not deleted. Data is preserved for historical accuracy. Hard deletes only happen on explicit account deletion requests, which cascade everything.</div></div></div>
+        <div class="pi"><div class="pi-n">D3</div><div><div class="pi-title">Dates stored as DATE, timestamps as TIMESTAMPTZ</div><div class="pi-text">Check-ins are date events, not time events. habit_logs.log_date, weekly_goals.week_start_date, milestones.milestone_date, day_notes.note_date, reflections.reflection_month are all DATE. Created/updated fields are TIMESTAMPTZ.</div></div></div>
+        <div class="pi"><div class="pi-n">D4</div><div><div class="pi-title">user_id denormalised on habit_logs and weekly_goals</div><div class="pi-text">Trades slight normalisation purity for significant query performance on the most frequent read paths. A trigger enforces consistency — habit_logs.user_id must always match its parent habit's user_id.</div></div></div>
+        <div class="pi"><div class="pi-n">D5</div><div><div class="pi-title">WeeklyGoal is versioned — goals are never altered, only superseded</div><div class="pi-text">Each goal change inserts a new row with the next Monday as week_start_date. The previous row is never touched. Historical week scores are always accurately recalculable against the goal that was active at the time.</div></div></div>
+        <div class="pi"><div class="pi-n">D6</div><div><div class="pi-title">JSONB for wins, gaps, intentions in reflections</div><div class="pi-text">Avoids separate junction tables for simple ordered string arrays. JSONB allows future metadata per item (date added, emoji, etc.) without schema changes. No querying within these arrays is required — they are always retrieved as complete arrays.</div></div></div>
+        <div class="pi"><div class="pi-n">D7</div><div><div class="pi-title">milestones.habit_id is SET NULL on habit delete, not CASCADE</div><div class="pi-text">A milestone is a historical record belonging to the user, not the habit. It survives habit deletion. The habit name is stored in the milestone title at creation time, so the record remains meaningful even after habit_id becomes null.</div></div></div>
+        <div class="pi"><div class="pi-n">D8</div><div><div class="pi-title">No caching tables in schema — caching is application-layer</div><div class="pi-text">Past week scores and past monthly consistency values are immutable once the period closes and can be cached in application memory or a Redis layer. The database schema stays clean — no cached_scores or cached_stats tables. This decision can be revisited if query performance becomes a problem at scale.</div></div></div>
+        <div class="pi"><div class="pi-n">D9</div><div><div class="pi-title">Admin roles are minimal for v1 — three fields only</div><div class="pi-text">role (user/admin), suspended_at, is_test. No audit log, no permission scopes, no multi-level hierarchy. The admin for v1 is one person with full database access. Role-based complexity is deferred until there is a real operational need — i.e. a team with different access levels.</div></div></div>
+        <div class="pi"><div class="pi-n">D10</div><div><div class="pi-title">No backdating or future-dating of check-ins</div><div class="pi-text">log_date must equal today in the user's timezone. Enforced at application layer and by a CHECK constraint. Streak integrity depends on this — allowing backdating would make the streak calculation unreliable and gameable.</div></div></div>
+        <div class="pi"><div class="pi-n">D11</div><div><div class="pi-title">Goal changes take effect next Monday — never mid-week</div><div class="pi-text">Preserves the integrity of the current week's score. The user made a commitment at the start of the week under the existing goal. Mid-week changes are deferred to create a clean, predictable system. The UI communicates the effective date explicitly.</div></div></div>
+        <div class="pi"><div class="pi-n">D12</div><div><div class="pi-title">Same email cannot exist across Google and email/password auth</div><div class="pi-text">The UNIQUE constraint on users.email enforces this at the database level. Account linking (connecting both methods to one account) is a future feature, not a v1 requirement.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">What this model does not include — and why</div>
+      <div class="principle-list">
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">No social or sharing features</div><div class="pi-text">No friends, followers, shared habits, or public profiles. Consyst is a private personal OS. All data is private to the user. This is a design decision, not an oversight.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">No notifications table</div><div class="pi-text">Notification preferences (reminder times, toggles) are stored in Settings — but as separate fields on the users table or a companion user_preferences table, not a notifications log. Actual notification delivery is handled by a third-party service (e.g. email provider, push service). No notification history is stored in this schema.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">No billing or subscription table</div><div class="pi-text">Consyst's pricing model has not been decided. If a subscription tier is introduced, a subscriptions table will be added. For v1, all users have equal access — no gating needed in the schema.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">No cached or materialised score tables</div><div class="pi-text">All scores are computed from raw data. If performance becomes a problem at scale, a caching layer (application or Redis) handles past periods. The schema stays clean and all calculations remain derivable from source data.</div></div></div>
+        <div class="pi"><div class="pi-n">—</div><div><div class="pi-title">No audit log table</div><div class="pi-text">Admin actions are not logged in the database for v1. At the scale and team size of initial launch, this is not needed. If regulatory requirements or team size make it necessary, an admin_audit_log table is a straightforward addition.</div></div></div>
+      </div>
+    </div>
+
+    <div class="sub">
+      <div class="sub-label">Data model — complete and confirmed</div>
+      <div class="callout">
+        <p>The Consyst data model is complete. Seven tables · 63 fields · 14 database constraints · 7 indexes · 2 validation triggers · 1 updated_at trigger · 12 documented design decisions · 10 edge case themes fully resolved. The next step is tech stack selection — the model is now sufficiently defined to make that choice with full information.</p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<!-- FOOTER -->
+<div class="doc-footer">
+  <div class="footer-logo">
+    <svg width="44" height="16" viewBox="0 0 88 36">
+      <rect x="0"  y="12" width="14" height="22" rx="7" fill="#F0997B"/>
+      <rect x="18" y="6"  width="14" height="28" rx="7" fill="#EF9F27"/>
+      <rect x="36" y="0"  width="14" height="36" rx="7" fill="#1D9E75"/>
+      <rect x="54" y="4"  width="14" height="32" rx="7" fill="#378ADD"/>
+    </svg>
+    <span class="logo-text" style="font-size:14px;">Consyst</span>
+  </div>
+  <div class="footer-text">Data Model · v1.4 · Final · March 2026 · Confidential</div>
+</div>
+
+</body>
+</html>
